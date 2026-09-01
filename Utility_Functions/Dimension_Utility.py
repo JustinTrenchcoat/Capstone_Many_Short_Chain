@@ -1,3 +1,7 @@
+#======================================
+# Sampling part
+#======================================
+
 def mem(msg):
     print(f"{msg}: {process.memory_info().rss / 1024**2:.1f} MB")
 
@@ -20,13 +24,32 @@ def Iso_builder(num_dim):
 
   return target_log_prob_fn, initialize,init_step_size,mean_benchmark,var_benchmark
 
+def ar_builder(num_dim):
+  rho = 0.5 #just for now
+  # mean array:
+  mu = jnp.full(num_dim, 0.0)
+  # covariance matrix:
+  cov = [ [rho**(abs(i-j)) for j in range(num_dim)] for i in range(num_dim)]
+  target = tfd.MultivariateNormalFullCovariance(
+      loc=jnp.array(mu),
+      covariance_matrix=jnp.array(cov))
+  init_step_size = 0.5
+  def target_log_prob_fn(x):
+      return target.log_prob(x)
+  def initialize(shape, key):
+      return random.normal(key, shape + (num_dim,))
+
+  mean_benchmark = target.mean()
+  var_benchmark = target.variance()
+
+  return target_log_prob_fn, initialize,init_step_size,mean_benchmark,var_benchmark
 
 def kernel_setup(warmup_length,
                  num_total_chains, num_super_chains,
                  naive,initialize_fn, randomKey,
                  target_log_prob_fn,init_step_size):
     key, init_key = random.split(randomKey)
-    
+
     if naive:
       initial_position = initialize_fn((num_total_chains,), init_key)
     else:
@@ -137,7 +160,8 @@ def run_simulation(builder, dimension_list, warmup_length, repitition,
     keys = random.split(base_key, repitition)
     for num_dimension in dimension_list:
         mem(f"Simulation Start, D={num_dimension}")
-        target_log_prob_fn, initialize,init_step_size,mean_benchmark,var_benchmark = builder(num_dimension)
+        (target_log_prob_fn, initialize,
+         init_step_size,mean_benchmark,var_benchmark) = builder(num_dimension)
         # for one demension setup:
         for length in warmup_length:
             simulation(length,num_chains_short, num_super_chains,
@@ -153,3 +177,4 @@ def run_simulation(builder, dimension_list, warmup_length, repitition,
 #======================================
 # Plotting part
 #======================================
+
