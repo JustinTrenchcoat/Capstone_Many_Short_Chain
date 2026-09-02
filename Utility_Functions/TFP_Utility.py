@@ -59,74 +59,48 @@ def mse_calculation(result, mean_benchmark,
     return mse_list, factored_sq_err
 
 # add a switch for recording the states
+# change the trace functionality so that it only record the last states
 def simulation(keys, initialize_fn,
                warmup_length,sampling_length,
-               naive, repitition,record_states,
+               naive, repitition,
                MSE_list, R_Hat_list,
                num_dim, state_list,
                mean_benchmark,var_benchmark,
                num_super_chains,num_sub_chains,
                target_log_prob_fn, init_step_size):
     result_mse = []
-    # very long warmup phase might result in memory issue.
-    if not record_states:
-        skip_trace = True
-    else:
-        skip_trace = (warmup_length > 300)
 
     for sim in range(repitition):
-        kernel_short, initial_state, total_samples_short, 
-        initial_state_super = kernel_setup(warmup_length,sampling_length,
+        kernel_short, initial_state, total_samples_short, initial_state_super = kernel_setup(warmup_length,sampling_length,
                                            num_sub_chains, num_super_chains,
                                            naive, initialize_fn,keys[sim],
                                            target_log_prob_fn, init_step_size)
-    if not skip_trace:
-        result = tfp.mcmc.sample_chain(
-            total_samples_short, initial_state, kernel = kernel_short,
-            seed =keys[sim], trace_fn=None)
-        result_with_init = jnp.concatenate([initial_state[None, :, :], result],axis=0)
-        result_short = result[-1,:,:]
-        state_record = {
-            "Warmup Length": warmup_length,
-            "Iteration": sim,
-            "States":np.asarray(result_with_init),
-            "Initial Position":np.asarray(initial_state_super)
-            }
-    else:
-        result = []
-        result_with_init = []
         result_short = tfp.mcmc.sample_chain(
             total_samples_short, initial_state, kernel = kernel_short,
             seed =keys[sim], trace_fn=None)[-1,:,:]
-        state_record = {}
-
-    state_list.append(state_record)
-
-    # # the f bar
-    # mc_mean = result_short.mean(axis=0)
-    # squared_error = (mc_mean - mean_benchmark)**2
-    # # the factor was in fact 1/var
-    # factor = 1/var_benchmark
-    # # sq_err for all dimensions: a vector with dimension=num_dim
-    # factored_sq_err = factor*squared_error
-    # # avg over all dimension
-    # mse = (factored_sq_err).mean()
-    # result_mse.append(mse)
-
-    result_mse, factored_sq_err = mse_calculation(result_short,mean_benchmark,var_benchmark,result_mse)
-
-    for dim in range(num_dim):
-        new_r_hat = nested_rhat_constrained(result_short, num_super_chains, dim)
-        R_Hat_list.append({
+        state_record = {
             "Warmup Length": warmup_length,
-            "Iteration":sim,
-            "Dimension": dim,
-            "Rhat": new_r_hat[-1],
-            "MSE":factored_sq_err[dim]
-            })
-    del state_record, result_short, result, kernel_short, initial_state
-    del initial_state_super, total_samples_short, result_with_init
-    gc.collect()
+                        "Iteration": sim,
+                        "Final Position":np.asarray(result_short),
+                        "Initial Position":np.asarray(initial_state_super)
+        }
+
+        state_list.append(state_record)
+
+        result_mse, factored_sq_err = mse_calculation(result_short,mean_benchmark,var_benchmark,result_mse)
+
+        for dim in range(num_dim):
+            new_r_hat = nested_rhat_constrained(result_short, num_super_chains, dim)
+            R_Hat_list.append({
+                "Warmup Length": warmup_length,
+                "Iteration":sim,
+                "Dimension": dim,
+                "Rhat": new_r_hat[-1],
+                "MSE":factored_sq_err[dim]
+                })
+        del state_record, result_short, kernel_short, initial_state
+        del initial_state_super, total_samples_short
+        gc.collect()
 
     result_mse = np.array(result_mse)
     result_mse_best = result_mse.min(axis=0)
@@ -134,7 +108,7 @@ def simulation(keys, initialize_fn,
     mean_mse = result_mse.mean(axis=0)
 
     MSE_list.append({"Warmup Length":warmup_length,"Avg MSE": mean_mse,
-                        "Best MSE": result_mse_best,"Worst MSE": result_mse_worst})
+                     "Best MSE": result_mse_best,"Worst MSE": result_mse_worst})
     if naive:
         print(f"Naive initialization. Warmup Length: {warmup_length}; mean of MSE is: {mean_mse}")
     else:
