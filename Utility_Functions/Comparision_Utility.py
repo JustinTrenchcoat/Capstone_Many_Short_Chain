@@ -64,70 +64,21 @@ def mse_calculation(result, mean_benchmark,
     mse_list.append(mse)
     return mse_list, factored_sq_err
 
-# def simulation(warmup_length,num_total_chains, num_super_chains,
-#                naive,initialize_fn, randomKeys,
-#                target_log_prob_fn,init_step_size,
-#                repitition,R_hat_list,MSE_list,
-#                true_mean,true_var):
-#     result_mse = []
-#     for sim in range(repitition):
-#         kernel, sample_keys, last_states = kernel_setup(warmup_length,
-#                                                         num_total_chains, num_super_chains,
-#                                                         naive,initialize_fn, randomKeys[sim],
-#                                                         target_log_prob_fn,init_step_size)
-#         sample_states, info = jax.vmap(kernel)(sample_keys, last_states)
-#         samples = sample_states.position
-#         dims = samples.shape[1]
-#         result_mse, factored_sq_err = mse_calculation(samples,true_mean,true_var,result_mse)
-
-#         for dim in range(dims):
-#             rhat = nested_rhat_constrained(samples, num_super_chains, dim)
-#             R_hat_list.append({
-#                 "Warmup Length": warmup_length,
-#                 "Iteration":sim,
-#                 "Dimension": dim,
-#                 "Rhat": rhat[-1],
-#                 "MSE":factored_sq_err[dim]})
-#         del kernel, sample_keys, last_states, sample_states, info, samples
-#         gc.collect()
-#     mse_list = np.array(result_mse)
-#     mse_best = mse_list.min(axis=0)
-#     mse_worst = mse_list.max(axis=0)
-#     avg_mse = mse_list.mean(axis=0)
-#     MSE_list.append({"Warmup Length": warmup_length,"Avg MSE": avg_mse,
-#                         "Best MSE": mse_best,"Worst MSE": mse_worst})
-#     if naive:
-#         print(f"Naive initialization. Warmup Length: {warmup_length}; mean of MSE is: {avg_mse}")
-#     else:
-#         print(f"Constrained initialization. Warmup Length: {warmup_length}; mean of MSE is: {avg_mse}")
-#     del result_mse
-#     gc.collect()
-#     jax.clear_caches()
-
-
-
-def simulation(warmup_length,sample_length,num_total_chains, num_super_chains,
-               naive,initialize_fn, randomKey,repitition,
+def simulation(warmup_length,num_total_chains, num_super_chains,
+               naive,initialize_fn, randomKeys,
                target_log_prob_fn,init_step_size,
-               R_hat_list,MSE_list,
+               repitition,R_hat_list,MSE_list,
                true_mean,true_var):
     result_mse = []
-    # check if this is single chain or multichain
-    if num_super_chains == 1:
-        # this is single-chain MCMC, skip nested r-hat calculation
-        # also check for repitision, in case this is a sequential(?) MCMC and ask for regular r-hat
-        for iter in range(repitition):
-            kernel, sample_keys, last_states = kernel_setup(warmup_length,
-                                                    num_total_chains, num_super_chains,
-                                                    naive,initialize_fn, randomKey[iter],
-                                                    target_log_prob_fn,init_step_size)
-            for sample_iter in range(sample_length):
-                last_states, info = jax.vmap(kernel)(sample_keys, last_states)
-                samples = last_states.position
-
-
-
-
+    for sim in range(repitition):
+        kernel, sample_keys, last_states = kernel_setup(warmup_length,
+                                                        num_total_chains, num_super_chains,
+                                                        naive,initialize_fn, randomKeys[sim],
+                                                        target_log_prob_fn,init_step_size)
+        sample_states, info = jax.vmap(kernel)(sample_keys, last_states)
+        samples = sample_states.position
+        dims = samples.shape[1]
+        result_mse, factored_sq_err = mse_calculation(samples,true_mean,true_var,result_mse)
 
         for dim in range(dims):
             rhat = nested_rhat_constrained(samples, num_super_chains, dim)
@@ -152,3 +103,62 @@ def simulation(warmup_length,sample_length,num_total_chains, num_super_chains,
     del result_mse
     gc.collect()
     jax.clear_caches()
+
+#=======================
+# one chain set up
+#=======================
+def Rsetup(warmup_length, initialize_fn,init_key,
+           target_log_prob_fn, init_step_size):
+    initial_position = initialize_fn((1,), init_key)
+    warmup = blackjax.chees_adaptation(
+            target_log_prob_fn,num_chains=1,
+            target_acceptance_rate=0.75)
+    optimizer = optax.adam(learning_rate=0.001)
+    key_warmup, key_sample = random.split(key)
+    (last_states, parameters), _= warmup.run(
+            key_warmup,
+            initial_position,
+            init_step_size,
+            optimizer,
+            warmup_length
+            )
+    sample_keys = random.split(key_sample, 1)
+    kernel = blackjax.dhmc(target_log_prob_fn, **parameters).step
+    return kernel, sample_keys, last_states
+
+def Rsimulation(warmup_length,sample_length,
+                num_chains,initialize_fn, randomKey,repitition,
+                target_log_prob_fn,init_step_size,
+                R_hat_list,MSE_list,trace_list,
+                true_mean,true_var):
+    result_mse = []
+    # check if this is single chain or mul-run
+    if num_chains == 1:
+        # this is single-chain MCMC, skip nested r-hat calculation
+        # also check for repitision, in case this is a sequential(?) MCMC and ask for regular r-hat
+        kernel, sample_keys, last_states = kernel_setup(warmup_length,initialize_fn, randomKey,
+                                                    target_log_prob_fn,init_step_size)
+        states = []
+
+        
+        for sample_iter in range(sample_length):
+            last_states, info = jax.vmap(kernel)(sample_keys, last_states)
+            samples = last_states.position
+            states.append(samples)
+
+        MSE_list, fac_sq_error = mse_calculation(states, true_mean,true_var, MSE_list)
+        trace_list.append({
+            "Chain Number": num_chains,
+            "States": states,
+            "MSE":fac_sq_error.mean(),
+            "Rhat": None
+        })
+    else:
+        iter_key = random.split(randomKey, num_chains)
+        # this is running multiple chains sequentially and calculate R-hat:
+
+
+
+
+    return trace_list
+
