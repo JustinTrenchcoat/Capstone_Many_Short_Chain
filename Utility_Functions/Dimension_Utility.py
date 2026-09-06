@@ -177,4 +177,231 @@ def run_simulation(builder, dimension_list, warmup_length, repitition,
 #======================================
 # Plotting part
 #======================================
+def MSE_vs_Rhat_color(dfs, titles, supertitle, bound,
+                      threshold, num_chains_short,color_choice,):
 
+    # =========================================================
+    # Calculate theoretical 5th-95th percentile interval of R_v
+    # =========================================================
+
+    K = num_super_chains
+    num_subchains = M
+  
+
+    df1 = K - 1
+    df2 = K * (M - 1)
+
+    # 5th and 95th percentiles of the F distribution
+    f_quantiles = f.ppf([0.05, 0.95], df1, df2)
+
+    # Transform F quantiles to R_v quantiles
+    Rv_interval = np.sqrt(1 + f_quantiles / M)
+
+    # Your x-axis is R_v - 1
+    Rv_interval_x = Rv_interval - 1
+
+
+    # =========================================================
+    # Create plots
+    # =========================================================
+
+    fig, axes = plt.subplots(
+        2, 2,
+        figsize=(25, 10),
+        dpi=150,
+        sharex=True,
+        sharey=True
+    )
+
+    axes = axes.flatten()
+
+    if color_choice == "Dimension":
+
+        vmin = min(df["Dimension"].min() for df in dfs)
+        vmax = max(df["Dimension"].max() for df in dfs)
+
+        for ax, df, panel_title in zip(axes, dfs, titles):
+
+            sc = ax.scatter(
+                df["Rhat"] - 1,
+                df["MSE"],
+                c=df["Dimension"],
+                cmap="viridis",
+                vmin=vmin,
+                vmax=vmax,
+                s=35,
+                alpha=0.5
+            )
+
+            ax.set_title(panel_title, fontsize=15, pad=8)
+
+        cbar = fig.colorbar(
+            sc,
+            ax=axes,
+            shrink=0.8,
+            fraction=0.025,
+            pad=0.02
+        )
+
+        cbar.set_label("Dimension")
+
+        if vmax - vmin <= 20:
+            tick_values = np.arange(vmin, vmax + 1)
+        else:
+            tick_values = np.linspace(vmin, vmax, 5).round().astype(int)
+
+        cbar.set_ticks(tick_values)
+
+
+    elif color_choice == "Warmup Length":
+
+        warmups = np.sort(
+            np.unique(
+                np.concatenate(
+                    [df["Warmup Length"].unique() for df in dfs]
+                )
+            )
+        )
+
+        cmap = plt.get_cmap("RdYlBu_r")
+
+        color_map = {
+            w: cmap(x)
+            for w, x in zip(
+                warmups,
+                np.linspace(0, 1, len(warmups))
+            )
+        }
+
+        for ax, df, panel_title in zip(axes, dfs, titles):
+
+            groups = df.groupby("Warmup Length")
+
+            for warmup, subset in groups:
+
+                ax.scatter(
+                    subset["Rhat"] - 1,
+                    subset["MSE"],
+                    color=color_map[warmup],
+                    s=35,
+                    alpha=0.5
+                )
+
+            ax.set_title(panel_title, fontsize=15, pad=8)
+
+        handles = [
+            Line2D(
+                [0], [0],
+                marker="o",
+                color=color_map[warmup],
+                linestyle="",
+                markersize=7,
+                label=str(warmup)
+            )
+            for warmup in warmups
+        ]
+
+        fig.legend(
+            handles=handles,
+            title="Warmup Length",
+            loc="center left",
+            bbox_to_anchor=(0.84, 0.5),
+            fontsize=9
+        )
+
+    else:
+        raise ValueError(
+            "color_choice must be either "
+            "\"Dimension\" or \"Warmup Length\"!"
+        )
+
+
+    # =========================================================
+    # Add reference lines and formatting
+    # =========================================================
+
+    for ax in axes:
+
+        ax.set_yscale("log")
+        ax.set_xscale("log")
+
+        # Horizontal bounds
+        ax.axhline(
+            bound[0],
+            color="black",
+            linestyle="--"
+        )
+
+        ax.axhline(
+            bound[1],
+            color="black",
+            linestyle="--"
+        )
+
+        ax.axhline(
+            1 / num_chains_short,
+            color="black"
+        )
+
+        # Existing Rhat threshold
+        ax.axvline(
+            threshold,
+            color="blue",
+            linestyle="--"
+        )
+
+        # ---------------------------------------
+        # NEW: 5th percentile of R_v - 1
+        # ---------------------------------------
+        ax.axvline(
+            Rv_interval_x[0],
+            color="red",
+            linestyle="--",
+            linewidth=1.5
+        )
+
+        # ---------------------------------------
+        # NEW: 95th percentile of R_v - 1
+        # ---------------------------------------
+        ax.axvline(
+            Rv_interval_x[1],
+            color="red",
+            linestyle="--",
+            linewidth=1.5
+        )
+
+        ax.set_xlabel(
+            r"$\widehat{R}_{\nu}-1$",
+            fontsize=14
+        )
+
+        ax.set_ylabel(
+            "Scaled Squared Error",
+            fontsize=14
+        )
+
+        ax.tick_params(
+            axis="both",
+            which="both",
+            labelbottom=True,
+            labelleft=True,
+            labelsize=14
+        )
+
+
+    fig.subplots_adjust(
+        top=0.88,
+        bottom=0.08,
+        left=0.07,
+        right=0.82,
+        hspace=0.32,
+        wspace=0.20
+    )
+
+    fig.suptitle(
+        supertitle,
+        fontsize=20,
+        fontweight="bold"
+    )
+
+    plt.show()
