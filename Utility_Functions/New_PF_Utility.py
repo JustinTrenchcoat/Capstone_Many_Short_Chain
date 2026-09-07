@@ -1,36 +1,46 @@
-def sample_setup(warmup_length,dimension,num_total_chains,
-                 initialize_fn, randomKey,target_log_prob_fn,
-                 init_step_size, num_path):
-    adapt_key, init_key = random.split(randomKey)
+def kernel_setup(warmup_length,dimension,
+                    num_total_chains, num_super_chains,
+                    initialize_fn, randomKey,
+                    target_log_prob_fn,init_step_size):
+    # this would be done in two steps:
+    # first step: let adaptation jsut return the initializatin positions:
+    adapt_key, init_key, warmup_key = random.split(randomKey,3)
     initial_position = initialize_fn((dimension,), init_key)
+    # let it return num_super_chains initial positions.
     adapt = blackjax.pathfinder_adaptation(
         blackjax.hmc,
         target_log_prob_fn,
-        num_chains = num_total_chains, # question: can we make it less?
-        n_paths = num_path, # 20 in the Zhang et al. 
-        # But the OOM issue will occur when distribution's dimension is large
+        num_chains = num_super_chains, # question: can we make it less?
+        n_paths = 20, # 20 in the Zhang et al.
         initial_step_size = init_step_size,
         num_integration_steps = 1,
         adaptation_info_fn=get_filter_adapt_info_fn()
         )
-    (last_states, parameters), _ = adapt.run(
-        adapt_key,
-        initial_position,
+    (last_states, parameters), _ = adapt.run(adapt_key, initial_position,0)
+    # last_states would be just the initialized positions:
+    # print(f"last states are : {last_states[0]}") 
+    num_sub_chains = num_total_chains//num_super_chains
+    initial_position_super = last_states[0]
+
+    # second step: based on the initialized positions we make all subchains
+    true_initial_position = jnp.repeat(initial_position_super,num_sub_chains,axis=0)
+    warmup = blackjax.chees_adaptation(
+        target_log_prob_fn,num_chains=num_total_chains,
+        target_acceptance_rate=0.75)
+    optimizer = optax.adam(learning_rate=0.001)
+    key_warmup, key_sample = random.split(warmup_key)
+    (last_states, parameters), _= warmup.run(
+        key_warmup,
+        true_initial_position,
+        init_step_size,
+        optimizer,
         warmup_length
         )
+    sample_keys = random.split(key_sample, num_total_chains)
+    kernel = blackjax.dhmc(target_log_prob_fn, **parameters).step
+    return kernel, sample_keys, last_states
 
-    sample_keys = random.split(adapt_key, num_total_chains)
-    def run_chain(key, state,step_size):
-        kernel = blackjax.hmc(target_log_prob_fn,step_size = step_size,
-                              inverse_mass_matrix = parameters["inverse_mass_matrix"],
-                              num_integration_steps = parameters["num_integration_steps"])
-        return kernel.step(key, state)
-    
-    sample_states, infos = jax.vmap(run_chain, in_axes=(0,0,0))(
-        sample_keys,last_states,parameters['step_size'])
-    del infos
 
-    return sample_states.position
 def _reduce_variance_interval(x, axis=None, biased=True, keepdims=False):
     # ddof=0 is biased variance (N), ddof=1 is unbiased variance (N-1)
     ddof = 0 if biased else 1
@@ -67,23 +77,22 @@ def mse_calculation(result, mean_benchmark,
     return mse_list, factored_sq_err
 
 def simulation(warmup_length,num_total_chains, num_super_chains,
-               initialize_fn, randomKeys,
+               initialize_fn, randomKeys,dimension,
                target_log_prob_fn,init_step_size,
                repitition,R_hat_list,MSE_list,
-               true_mean,true_var, dimension):
+               true_mean,true_var):
     result_mse = []
-    if dimension >= 200:
-        num_path = 1
-    else:
-        num_path = 20
     for sim in range(repitition):
-        samples = sample_setup(warmup_length, dimension, 
-                               num_total_chains, initialize_fn, randomKeys[sim],
-                               target_log_prob_fn, init_step_size, num_path)
-        dims = samples.shape[1]
+        kernel, sample_keys, last_states = kernel_setup(warmup_length,dimension,
+                                                        num_total_chains, num_super_chains,
+                                                        initialize_fn, randomKeys[sim],
+                                                        target_log_prob_fn,init_step_size)
+        sample_states, info = jax.vmap(kernel)(sample_keys, last_states)
+        samples = sample_states.position
+        # dims = samples.shape[1]
         result_mse, factored_sq_err = mse_calculation(samples,true_mean,true_var,result_mse)
 
-        for dim in range(dims):
+        for dim in range(dimension):
             rhat = nested_rhat_constrained(samples, num_super_chains, dim)
             R_hat_list.append({
                 "Warmup Length": warmup_length,
@@ -91,17 +100,16 @@ def simulation(warmup_length,num_total_chains, num_super_chains,
                 "Dimension": dim,
                 "Rhat": rhat[-1],
                 "MSE":factored_sq_err[dim]})
-        del samples
-        jax.clear_caches()
+        del kernel, sample_keys, last_states, sample_states, info, samples
         gc.collect()
     mse_list = np.array(result_mse)
     mse_best = mse_list.min(axis=0)
     mse_worst = mse_list.max(axis=0)
     avg_mse = mse_list.mean(axis=0)
     MSE_list.append({"Warmup Length": warmup_length,"Avg MSE": avg_mse,
-                     "Best MSE": mse_best,"Worst MSE": mse_worst})
-    
-    print(f"Warmup Length: {warmup_length}; mean of MSE is: {avg_mse}")
+                        "Best MSE": mse_best,"Worst MSE": mse_worst})
+    print(f"New Pathfinder Initialization. Warmup Length: {warmup_length}; mean of MSE is: {avg_mse}")
+
     del result_mse
     gc.collect()
     jax.clear_caches()
