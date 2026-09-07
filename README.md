@@ -6,7 +6,7 @@ Thr project is a continuation of my summer self-initiated research project
 
 > _Many-Short-Chain MCMC: An Investigation of Convergence Diagnostics and Initialization Strategies_
 
-[Link to the Git Repo](https://github.com/JustinTrenchcoat/Bayesian_Summer_2026)
+[Link to the summer project Git Repo](https://github.com/JustinTrenchcoat/Bayesian_Summer_2026)
 
 The above project will be referred as "the summer project" for later context. This page also host most of the code used in the summer project, with a more organzied way.
 
@@ -36,9 +36,17 @@ The project has three main objectives:
 `Additional_Experiment/` folder contains the following folders
 | Directory  | Purpose |
 | ------------- | ------------- |
-| `Dimension_Experiment/`  | Sampling and visualization implementation for MVN distribution Isotropic covariance, and AR(1) covariance but varying the number of dimensions. |
-| `Geometry_Experiment/`  | Sampling and visualization implementation for distributions with intricate geometry |
-| `MVN_Experiment/`  | Sampling and visualization implementation for MVN distributions with Isotropic covariance, and AR(1) covariance|
+| `Comparison_Experiment/`  | Sampling and visualization implementation for comparing a single MCMC process, 4 MCMC process done sequentially, many-short-chain MCMC with constrained initialization, and many-short-chain MCMC with naive initialization.|
+| `Dimension_Experiment/`  | Sampling implementation for MVN distribution Isotropic covariance, and AR(1) covariance but varying the number of dimensions. |
+| `Geometry_Experiment/`  | Sampling implementation for distributions with intricate geometry |
+| `Initialization_Experiment/`  | Sampling implementation for constrained Pathfinder initialization.|
+| `MVN_Experiment/`  | Sampling implementation for MVN distributions with Isotropic covariance, and AR(1) covariance|
+
+### Utility Functions
+`Utility_Functions/` folder contains implementations of functions used in the above notebooks.
+
+### Visualizations
+`Visualization/` folder contains notebooks with visualizations of previously mentioned sampling processes.
 
 ### Experiment workflow
 For any distribution, the workflow is the following:
@@ -46,8 +54,8 @@ For any distribution, the workflow is the following:
 graph TD
     A[Distribution] --TFP Sampling Process(Constrained and naive) --> B{Dataframe about Nested R-hat and error}
     B -- Visualize --> C[Plots]
-    A --BlackJAX Sampling Process --> D{Dataframe about Nested R-hat and error}
+    A --BlackJAX Sampling Process (Constrained and naive) --> D{Dataframe about Nested R-hat and error}
     D -- Visualize --> C[Plots]
-    A --Pathfinder Sampling Process --> E{Dataframe about Nested R-hat and error}
+    A --Pathfinder Sampling Process (Constrained and naive) --> E{Dataframe about Nested R-hat and error}
     E -- Visualize --> C[Plots]
 ```
