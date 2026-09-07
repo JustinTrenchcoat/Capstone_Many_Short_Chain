@@ -1,35 +1,52 @@
-def kernel_setup(warmup_length,dimension,
-                    num_total_chains, num_super_chains,
-                    initialize_fn, randomKey,
-                    target_log_prob_fn,init_step_size):
-    # this would be done in two steps:
-    # first step: let adaptation jsut return the initializatin positions:
+def initialization_setup(dimension, num_total_chains,num_super_chains,
+                         target_log_prob_fn, initialize_fn,
+                         randomKey, init_step_size, num_path):
     adapt_key, init_key, warmup_key = random.split(randomKey,3)
     initial_position = initialize_fn((dimension,), init_key)
     # let it return num_super_chains initial positions.
     adapt = blackjax.pathfinder_adaptation(
-        blackjax.hmc,
-        target_log_prob_fn,
-        num_chains = num_super_chains, # question: can we make it less?
-        n_paths = 20, # 20 in the Zhang et al.
-        initial_step_size = init_step_size,
-        num_integration_steps = 1,
-        adaptation_info_fn=get_filter_adapt_info_fn()
-        )
+            blackjax.hmc,
+            target_log_prob_fn,
+            num_chains = num_super_chains, # question: can we make it less?
+            n_paths = num_path, # To prevent OOM issue
+            initial_step_size = init_step_size,
+            num_integration_steps = 1,
+            adaptation_info_fn=get_filter_adapt_info_fn()
+            )
     (last_states, parameters), _ = adapt.run(adapt_key, initial_position,0)
-    # last_states would be just the initialized positions:
-    # print(f"last states are : {last_states[0]}") 
+        # last_states would be just the initialized positions:
+        # print(f"last states are : {last_states[0]}") 
     num_sub_chains = num_total_chains//num_super_chains
     initial_position_super = last_states[0]
-
-    # second step: based on the initialized positions we make all subchains
+    
+        # second step: based on the initialized positions we make all subchains
     true_initial_position = jnp.repeat(initial_position_super,num_sub_chains,axis=0)
+    true_initial_position.block_until_ready()
+    del adapt, last_states, parameters,initial_position,initial_position_super
+    gc.collect()
+    jax.clear_caches()
+    return true_initial_position, warmup_key
+
+def kernel_setup(warmup_length,dimension,
+                    num_total_chains, num_super_chains,
+                    initialize_fn, randomKey,
+                    target_log_prob_fn,init_step_size):
+    # 20 in the Zhang et al. Temporary change to 5 when doing IRT or other model with large dimension.
+    if dimension >= 200:
+        num_path = 5
+    else:
+        num_path = 20
+    # this would be done in two steps:
+    # first step: let adaptation just return the initializatin positions:
+    true_initial_position, warmup_key = initialization_setup(dimension, num_total_chains,
+                                                             num_super_chains,target_log_prob_fn,
+                                                             initialize_fn,randomKey,init_step_size, num_path)
     warmup = blackjax.chees_adaptation(
         target_log_prob_fn,num_chains=num_total_chains,
         target_acceptance_rate=0.75)
     optimizer = optax.adam(learning_rate=0.001)
     key_warmup, key_sample = random.split(warmup_key)
-    (last_states, parameters), _= warmup.run(
+    (warmup_last_states, warmup_parameters), _= warmup.run(
         key_warmup,
         true_initial_position,
         init_step_size,
@@ -37,8 +54,11 @@ def kernel_setup(warmup_length,dimension,
         warmup_length
         )
     sample_keys = random.split(key_sample, num_total_chains)
-    kernel = blackjax.dhmc(target_log_prob_fn, **parameters).step
-    return kernel, sample_keys, last_states
+    kernel = blackjax.dhmc(target_log_prob_fn, **warmup_parameters).step
+    del warmup_parameters, optimizer,warmup
+    gc.collect()
+
+    return kernel, sample_keys, warmup_last_states
 
 
 def _reduce_variance_interval(x, axis=None, biased=True, keepdims=False):

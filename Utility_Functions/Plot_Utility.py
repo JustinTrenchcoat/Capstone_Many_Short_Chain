@@ -70,7 +70,7 @@ def MSE_vs_Rhat(df, title, naive, bound, threshold, num_subchains):
 ############################################
 def MSE_vs_Warmup_Jumbo(tfp_c_df, tfp_n_df, 
                         bjx_c_df, bjx_n_df,
-                        pf_df, title):
+                        pf_c_df, pf_n_df,title):
     fig, ax = plt.subplots(figsize=(10, 8), dpi=150)
     colors = {
            "TFP":"orange",
@@ -104,9 +104,13 @@ def MSE_vs_Warmup_Jumbo(tfp_c_df, tfp_n_df,
     plot_with_band(
         bjx_n_df,colors["BlackJAX"],linestyles["Naive"],
         "BlackJAX-Naive",hatch = "xxx")
+    # Pathfinder initializations
     plot_with_band(
-        pf_df,colors["PathFinder"],'-',
-        "PathFinder Initialization",hatch = None)
+        pf_c_df, colors["PathFinder"], linestyles["Constrained"],
+        "Pathfinder Initialization, Constrained", hatch=None)
+    plot_with_band(
+        pf_n_df,colors["PathFinder"],linestyles["Naive"],
+        "PathFinder Initialization, Naive", hatch = "++")
     
     ax.set_title(title, fontsize=20, fontweight="bold")
     ax.set_ylabel("Mean Squared Error",fontsize=14)
