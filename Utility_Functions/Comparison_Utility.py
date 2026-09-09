@@ -1,3 +1,7 @@
+# for visualization:
+import matplotlib.colors as mcolors
+import colorcet as cc
+
 def _reduce_variance_interval(x, axis=None, biased=True, keepdims=False):
     # ddof=0 is biased variance (N), ddof=1 is unbiased variance (N-1)
     ddof = 0 if biased else 1
@@ -73,6 +77,7 @@ def simulation(warmup_length,num_total_chains, num_super_chains,
     samples = sample_states.position
     dims = samples.shape[1]
     result_mse, factored_sq_err = mse_calculation(samples,true_mean,true_var,result_mse)
+    mean_mse = jnp.mean(jnp.stack(result_mse), axis=0)
     rhat_list = []
     for dim in range(dims):
       rhat = nested_rhat_constrained(samples, num_super_chains, dim)[-1]
@@ -81,7 +86,7 @@ def simulation(warmup_length,num_total_chains, num_super_chains,
     del kernel, sample_keys, last_states, sample_states, info, result_mse,rhat_list
     gc.collect()
     jax.clear_caches()
-    return samples, mean_rhat
+    return samples, mean_rhat, mean_mse
 
 def single_chain(warmup_length, sample_length,
                  initialize_fn, randomKey,
@@ -134,7 +139,8 @@ def single_chain(warmup_length, sample_length,
 
 
 def multiple_chains(warmup_length, sample_length,initialize_fn, randomKey,
-                    target_log_prob_fn, init_step_size, sample_list, repitition):
+                    target_log_prob_fn, init_step_size, sample_list, repitition,
+                    true_mean, true_var):
     keys = jax.random.split(randomKey, repitition)
     if repitition > 1:
       calculate = True
@@ -143,6 +149,7 @@ def multiple_chains(warmup_length, sample_length,initialize_fn, randomKey,
     else:
       calculate = False
 
+    mse_list = []
     for iteration in range(repitition):
         key = keys[iteration]
         samples, mean, var = single_chain(warmup_length, sample_length,
@@ -157,70 +164,177 @@ def multiple_chains(warmup_length, sample_length,initialize_fn, randomKey,
             "Iteration": iteration,
             "Samples": samples,
         })
+
+        # calculate MSE
+        mse_list, fse = mse_calculation(samples, true_mean, true_var,mse_list)
+
+    # calculate r-hat
     if calculate:
       in_chain_mean_array = jnp.stack(in_chain_mean_list)
       in_chain_var_array = jnp.stack(in_chain_var_list)
-      W = jnp.mean(in_chain_var_array)
+      W = jnp.mean(in_chain_var_array, axis=0)
       B = sample_length*_reduce_variance_interval(in_chain_mean_array, axis=0, biased=False)
-      r_hat = jnp.sqrt((sample_length-1)/sample_length + (B/W)*(1/sample_length))
+      r_hat = jnp.sqrt((sample_length-1)/sample_length + (B)/(W*sample_length))
       mean_r_hat = r_hat.mean()
     else :
       mean_r_hat = None
-    return sample_list, mean_r_hat
+
+    mean_mse = jnp.mean(jnp.stack(mse_list), axis=0)
+    return sample_list, mean_r_hat, mean_mse
 
 #===============================
 # Plotting function:
 #===============================
 # MSC stands for Many-Short_Chain
-def comparison_plot(samples, multichain_samples, 
-                    MSC_C, MSC_N, multichain_r, 
-                    MSC_C_r, MSC_N_r):
+def comparison_plot(params,
+                    samples, mean_mse,
+                    multichain_samples, multichain_mse, multichain_r, 
+                    MSC_C, MSE_C_MSE, MSC_C_r,
+                    MSC_N, MSE_N_MSE, MSC_N_r):
 
-    fig, axes = plt.subplots(2, 2, figsize=(16, 12),dpi=150)
+    super_chain, sub_chain, total_chain, warmup_length = params
+
+    fig, axes = plt.subplots(2, 2, figsize=(16, 12), dpi=150)
+    fig.suptitle(f"Comparison of MCMC Sampling Strategies, Warmup Length={warmup_length}",fontsize=18,fontweight="bold")
     axes = axes.flatten()
-    # Single Chain
-    one_chain = samples[0]["Samples"]
-    axes[0].plot(one_chain[:, 0], one_chain[:, 1],
-                 marker="o", markersize=2, linewidth=0.5,alpha=0.7)
 
-    axes[0].set_title(f"One Chain, Sample Length = {one_chain.shape[0]}")
+    # ============================================================
+    # Single Chain
+    # ============================================================
+
+    one_chain = samples[0]["Samples"]
+
+    axes[0].plot(
+        one_chain[:, 0],
+        one_chain[:, 1],
+        marker="o",
+        markersize=2,
+        linewidth=0.5,
+        alpha=0.7
+    )
+
+    axes[0].set_title(
+        f"One Chain, K=1, M=1, N={total_chain}, MSE={mean_mse}"
+    )
     axes[0].set_xlabel(r"$\theta_1$")
     axes[0].set_ylabel(r"$\theta_2$")
 
-    # Consecutive Chains
+    # ============================================================
+    # Multiple Consecutive Chains
+    # ============================================================
 
     for chain in multichain_samples:
-       chain_samples = chain["Samples"]
-       iteration = chain["Iteration"]
-       axes[1].plot(chain_samples[:, 0], chain_samples[:, 1],
-                    marker="o", markersize=2, linewidth=0.5,
-                    alpha=0.7, label=f"Chain {iteration}")
-    axes[1].set_title(f"Multiple Chains, rhat={float(multichain_r):.4f}, each sample length = {chain_samples.shape[0]}")
+        chain_samples = chain["Samples"]
+        iteration = chain["Iteration"]
+
+        axes[1].plot(
+            chain_samples[:, 0],
+            chain_samples[:, 1],
+            marker="o",
+            markersize=2,
+            linewidth=0.5,
+            alpha=0.7,
+            label=f"Chain {iteration}"
+        )
+
+    axes[1].set_title(
+        f"Multiple Chains, K={super_chain}, M=1, N={sub_chain}, "
+        f"rhat={float(multichain_r):.4f}, MSE={multichain_mse}"
+    )
 
     axes[1].set_xlabel(r"$\theta_1$")
     axes[1].set_ylabel(r"$\theta_2$")
     axes[1].legend()
 
-    # Many-Short_Chain, Constrained Initialization
+    # ============================================================
+    # Many-Short-Chain, Constrained Initialization
+    # ============================================================
 
-    axes[2].scatter(MSC_C[:, 0], MSC_C[:, 1],
-                    s=5, alpha=0.5)
+    num_super_chains = super_chain
+    num_sub_chains = sub_chain
+
+    # Get distinct base colors for each superchain
+    base_colors = [ mcolors.to_rgb(color)
+    for color in cc.glasbey[:super_chain]]
+
+    # Each superchain has num_sub_chains subchains.
+    # Since N=1, each row of MSC_C corresponds to one subchain.
+    for k in range(num_super_chains):
+
+        # Base color for this superchain
+        base_color = base_colors[k]
+
+        # Generate different shades for subchains
+        shades = np.linspace(0.35, 1.0, num_sub_chains)
+
+        for m in range(num_sub_chains):
+
+            # Chain index based on jnp.repeat ordering
+            idx = k * num_sub_chains + m
+
+            # Skip if index exceeds number of samples
+            if idx >= len(MSC_C):
+                continue
+
+            # Create shade by blending base color with white
+            shade = shades[m]
+
+            color = (
+                shade * base_color[0] + (1 - shade),
+                shade * base_color[1] + (1 - shade),
+                shade * base_color[2] + (1 - shade),
+            )
+
+            axes[2].scatter(
+                MSC_C[idx, 0],
+                MSC_C[idx, 1],
+                s=20,
+                color=color,
+                alpha=0.8
+            )
 
     axes[2].set_title(
-        f"Many-Short-Chain, constrained, K = {num_super_chains}, M={M}, "
-        f"nested rhat={float(MSC_C_r):.4f}")
+        f"Many-Short-Chain, constrained, "
+        f"K={super_chain}, M={sub_chain}, N=1, "
+        f"nested rhat={float(MSC_C_r):.4f}, "
+        f"MSE={float(MSE_C_MSE):.4f}"
+    )
 
     axes[2].set_xlabel(r"$\theta_1$")
     axes[2].set_ylabel(r"$\theta_2$")
 
-    # Many-Short-Chain, naive Initialization
-    axes[3].scatter( MSC_N[:, 0], MSC_N[:, 1],
-                    s=5, alpha=0.5)
+    # ============================================================
+    # Many-Short-Chain, Naive Initialization
+    # ============================================================
 
-    axes[3].set_title( f"Many-Short-Chain, naive, K = {num_chains_short}, M=1, "
-                      f"nested rhat={float(MSC_N_r):.4f}")
+    num_points = len(MSC_N)
+
+    # Assign every point a different color
+    point_colors = plt.cm.hsv(
+        np.linspace(0, 1, num_points, endpoint=False)
+    )
+
+    axes[3].scatter(
+        MSC_N[:, 0],
+        MSC_N[:, 1],
+        s=20,
+        c=point_colors,
+        alpha=0.8
+    )
+
+    axes[3].set_title(
+        f"Many-Short-Chain, naive, "
+        f"K={total_chain}, M=1, N=1, "
+        f"nested rhat={float(MSC_N_r):.4f}, "
+        f"MSE={float(MSE_N_MSE):.4f}"
+    )
+
     axes[3].set_xlabel(r"$\theta_1$")
     axes[3].set_ylabel(r"$\theta_2$")
+
+    # ============================================================
+    # Shared axis limits
+    # ============================================================
 
     all_x = []
     all_y = []
@@ -234,10 +348,11 @@ def comparison_plot(samples, multichain_samples,
         all_x.append(chain["Samples"][:, 0])
         all_y.append(chain["Samples"][:, 1])
 
-    # Other samples
+    # Constrained MSC
     all_x.append(MSC_C[:, 0])
     all_y.append(MSC_C[:, 1])
 
+    # Naive MSC
     all_x.append(MSC_N[:, 0])
     all_y.append(MSC_N[:, 1])
 
@@ -251,5 +366,5 @@ def comparison_plot(samples, multichain_samples,
         ax.set_xlim(x_min, x_max)
         ax.set_ylim(y_min, y_max)
 
-    plt.tight_layout()
+    plt.tight_layout(rect=[0, 0, 1, 0.95])
     plt.show()
