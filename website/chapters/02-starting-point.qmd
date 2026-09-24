@@ -1,0 +1,53 @@
+---
+title: "2. Starting Point"
+---
+
+# Reproducing Existing Work
+
+## The Starting Point
+
+[Explain the existing many-short-chain work.]
+
+## Nested $\widehat{R}$
+
+[Introduce the equation.]
+
+$$
+...
+$$
+
+## The $N=1$ Case
+
+[Explain what changes in your investigation.]
+
+## Initialization Strategies
+
+### Constrained Initialization
+
+[Definition.]
+
+### Naive Initialization
+
+[Definition.]
+
+## Reproducing the Results
+
+### Original Results
+
+[Plot]
+
+### Reproduced Results
+
+[Plot]
+
+## Looking Through Warmup
+
+[Warmup-colored plots]
+
+## What Did We Learn?
+
+[Short interpretation.]
+
+## The Next Question
+
+> Is the observed behavior specific to the computational framework?

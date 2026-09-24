@@ -1,0 +1,35 @@
+---
+title: "3. Moving Beyond"
+---
+
+# Is the Computational Framework Responsible?
+
+## Why Change Frameworks?
+
+[Explain the motivation.]
+
+## Moving to BlackJAX
+
+[Briefly explain the transition.]
+
+## Repeating the Experiments
+
+### Uncolored Results
+
+[Plots]
+
+### Warmup-Coloring
+
+[Plots]
+
+## Comparing Frameworks
+
+[Side-by-side comparison.]
+
+## Interpretation
+
+[What remains consistent?]
+
+## The Next Question
+
+> If initialization matters, what exactly is initialization doing?

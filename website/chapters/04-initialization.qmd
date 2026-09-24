@@ -1,0 +1,39 @@
+---
+title: "4. What Does Initialization Do?"
+---
+
+# What Does Initialization Do?
+
+## From Initialization to Warmup
+
+[Explain the conceptual transition.]
+
+## Can We Start From Somewhere Better?
+
+[Motivation for PathFinder.]
+
+## PathFinder
+
+[Brief explanation.]
+
+## Experiments
+
+### Paper Distributions
+
+[Plots]
+
+### Warmup Behavior
+
+[Colored plots]
+
+## An Unexpected Result
+
+[Your weird PathFinder behavior.]
+
+## An Open Question
+
+[Explain what you don't yet understand.]
+
+## Moving Toward Controlled Experiments
+
+[Why MVNs are the next step.]

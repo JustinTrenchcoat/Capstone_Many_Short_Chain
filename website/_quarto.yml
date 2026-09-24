@@ -1,0 +1,45 @@
+project:
+  type: website
+
+website:
+  title: "Many-Short-Chain MCMC"
+  
+  navbar:
+    left:
+      - href: index.qmd
+        text: Home
+
+      - href: research.qmd
+        text: Research
+
+      - href: experiments.qmd
+        text: Experiments
+
+      - href: results.qmd
+        text: Results
+
+      - href: reproducibility.qmd
+        text: Reproducibility
+
+    right:
+      - icon: github
+        href: https://github.com/JustinTrenchcoat/Capstone_Many_Short_Chain
+        aria-label: GitHub
+
+  sidebar:
+    - title: "Research Story"
+      style: "docked"
+      contents:
+        - chapters/01-before-it-started.qmd
+        - chapters/02-starting-point.qmd
+        - chapters/03-moving-beyond.qmd
+        - chapters/04-initialization.qmd
+        - chapters/05-controlled-experiments.qmd
+
+format:
+  html:
+    theme: cosmo
+    toc: true
+    toc-depth: 3
+    code-fold: true
+    code-tools: true

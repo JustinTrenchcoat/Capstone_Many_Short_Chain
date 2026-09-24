@@ -1,0 +1,102 @@
+---
+title: "Research"
+---
+
+## Motivation
+
+Markov chain Monte Carlo (MCMC) is a fundamental tool for Bayesian inference, but its computational structure creates a tension between **efficient computation** and **reliable convergence assessment**.
+
+Traditional MCMC workflows often rely on a small number of relatively long chains. 
+With modern computing hardware, however, it is increasingly practical to run a much larger number of shorter chains in parallel. 
+This many-short-chain approach changes both how computation can be organized and how convergence should be assessed.
+
+This project focuses on understanding that setting. 
+In particular, it investigates how nested $\hat{R}$ (nested R-hat) behaves when many chains are run in parallel, how its behavior relates to sampling accuracy, and how initialization and warmup affect the resulting convergence assessment.
+
+## The Central Question
+
+The central question of this project is:
+
+> **How can we understand and reliably assess convergence in many-short-chain MCMC, and how do initialization and warmup influence that assessment?**
+
+This question leads to several related questions:
+
+- How does nested R-hat change as MCMC progresses through warmup?
+- How closely does nested R-hat track sampling accuracy?
+- Do different dimensions of the target distribution exhibit different convergence behavior?
+- How does the choice of initialization affect the behavior of the sampler and its converegence diagnostics?
+- Can alternative initialization strategies, such as Pathfinder-based initialization, reduce the amount of warmup required?
+- How do target dimensionanlity and geometry influence these relationships?
+
+Rather than treating these questions independently, the project approaches them as parts of the same investigation: 
+understanding the interaction between **sampling, initialization, warmup, and convergence diagnostics**.
+
+## From Reproduction to Investigation
+
+The project began by reproducing experiments from the original work on nested R-hat. 
+Reproduction served two purposes: establishing a working computational framework and developing a concrete understanding of how the diagnostic behaves in practice.
+
+The initial experiments were then extended to additional target distributions and initialization strategies. 
+As the experimental setup became more varied, differences in convergence behavior across dimensions and warmup lengths became increasingly apparent.
+
+These observations led to a change in the role of the experiments. Rather than simply asking whether the original results could be reproduced, the project began asking **why the observed behavior occurs**.
+
+This motivated a progression toward increasingly controlled experiments. 
+The computational framework was first extended to another MCMC implementation, after which initialization strategies were investigated more directly. 
+The experiments then moved toward analytically tractable target distributions, particularly multivariate normal distributions, where dimensionality, covariance structure, and posterior geometry can be controlled explicitly.
+
+The resulting research process is therefore not a collection of independent experiments. 
+Each stage was motivated by questions raised by the previous one.
+
+## Research Journey
+
+The research developed through a sequence of increasingly focused questions:
+
+
+```{mermaid}
+flowchart TD
+    A["Original nested R-hat work"] --> B["Reproduce existing experiments"]
+    B --> C["Extend target distributions"]
+    C --> D["Compare MCMC implementations"]
+    D --> E["Investigate initialization"]
+    E --> F["Study warmup-dependent behavior"]
+    F --> G["Move to controlled MVN targets"]
+    G --> H["Vary dimensionality and geometry"]
+    H --> I["Understand convergence diagnostics"]
+```
+
+## Chapters
+
+### 1. Before It All Started
+The project begins with the motivation for studying many-short-chain MCMC and the computational setting that makes large numbers of parallel chains practical. 
+This chapter introduces the basic MCMC setup, the role of warmup and initialization, and the motivation for using many short chains rather than relying only on a small number of long chains.
+
+[Read the chapter →](chapters/01-before-it-started.qmd)
+
+### 2. Starting Point
+
+The first stage of the investigation reproduces experiments from the original nested R-hat work. 
+The experiments establish the initial computational framework and examine how nested R-hat behaves under different warmup lengths and initialization procedures.
+
+[Read the chapter →](chapters/02-starting-point.qmd)
+
+### 3. Moving Beyond
+
+After establishing the initial results, the investigation moves beyond the original implementation. 
+The experiments are reproduced using BlackJAX to determine whether the observed behavior persists across sampling frameworks and to separate properties of the diagnostic from properties of a particular implementation.
+
+[Read the chapter →](chapters/03-moving-beyond.qmd)
+
+### 4. What Does Initialization Do?
+
+The next stage focuses explicitly on initialization. In particular, the project investigates whether Pathfinder-based initialization can provide a more favorable starting point for MCMC and potentially reduce the amount of warmup required. 
+Unexpected behavior in these experiments motivates a transition toward more controlled target distributions.
+
+[Read the chapter →](chapters/04-initialization.qmd)
+
+### 5. More Tests, Easier Targets
+
+The investigation then moves to controlled experiments using multivariate normal distributions. These targets make it possible to vary dimensionality, covariance structure, and geometry systematically while maintaining a known target distribution. 
+The goal is to isolate how these factors influence warmup, sampling accuracy, and nested R-hat.
+
+[Read the chapter →](chapters/05-controlled-experiments.qmd)

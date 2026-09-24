@@ -1,0 +1,38 @@
+---
+title: "Many-Short-Chain MCMC"
+---
+
+## Overview
+
+This project investigates **many-short-chain Markov chain Monte Carlo (MCMC)** for Bayesian inference, with a particular focus on **convergence diagnostics and initialization strategies**.
+
+Modern computing makes it increasingly practical to run many MCMC chains in parallel. 
+This creates potential advantages for both computational efficiency and convergence assessment, but also raises an important question: 
+**what can we reliably learn from many relatively short chains, and how do initialization and warmup affect that assessment?**
+
+A central focus of this project is **nested $\hat{R}$ (nested R-hat)**, a convergence diagnostic designed for parallel MCMC that provides information about convergence at the level of individual dimensions. 
+The original implementation and accompanying experiments are available in [Dr. Charles Margossian's nested R-hat repository](https://github.com/charlesm93/nested-rhat).
+
+The project also examines **initialization strategies**, including constrained and naive initialization as well as Pathfinder-based approaches. 
+By varying warmup length, target distributions, dimensionality, and posterior geometry, the experiments aim to better understand the interaction between initialization, warmup, convergence diagnostics, and sampling accuracy.
+
+## Research Questions
+
+The investigation is organized around several questions:
+
+- How does nested R-hat behave as many-short-chain MCMC progresses through warmup and sampling?
+- How does nested R-hat relate to measures of sampling error?
+- How does initialization affect convergence across different target distributions and dimensions?
+- Can alternative initialization strategies improve the efficiency or reliability of warmup?
+- How do dimensionality and target geometry influence these relationships?
+
+## Research Journey
+
+The project developed through a sequence of increasingly controlled experiments, beginning with reproduction of existing nested R-hat results and extending toward cross-framework validation, initialization studies, and controlled experiments on multivariate normal targets.
+
+Explore the research process:
+
+- **[Research Story](research.qmd)** — the development of the project and the reasoning behind each stage of the investigation.
+- **[Experiments](experiments.qmd)** — experimental design, sampling configurations, target distributions, and evaluation metrics.
+- **[Results](results.qmd)** — current observations, findings, and open questions.
+- **[Reproducibility](reproducibility.qmd)** — computational frameworks, code organization, and resources for reproducing the experiments.

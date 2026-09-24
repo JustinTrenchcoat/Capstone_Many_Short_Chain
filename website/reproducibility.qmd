@@ -1,0 +1,37 @@
+---
+title: "Reproducibility"
+---
+
+# Reproducibility
+
+## Repository
+
+[GitHub repository link](https://github.com/JustinTrenchcoat/Capstone_Many_Short_Chain)
+
+## Computational Frameworks
+
+- TensorFlow Probability
+- BlackJAX
+
+## Software Organization
+
+[Explain repository structure.]
+
+## Experiments
+
+[Explain how experiments can be reproduced.]
+
+## Visualization
+
+[Explain where plotting functions and notebooks live.]
+
+## Environment
+
+[Python version]
+[JAX version]
+[BlackJAX version]
+[TFP version]
+
+## Known Issues
+
+[Document compatibility issues or unresolved behaviors.]

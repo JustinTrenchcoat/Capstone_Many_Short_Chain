@@ -1,0 +1,23 @@
+---
+title: "1. Before It All Started"
+---
+
+# Why Many Short Chains?
+
+[Introduce MCMC.]
+
+## Warmup and Sampling
+
+[Explain the two phases.]
+
+[Insert warmup/sampling diagram.]
+
+## Why Multiple Chains?
+
+[Explain why multiple chains are used.]
+
+## Comparing Chain Configurations
+
+[Explain the comparison.]
+
+![Single-chain comparison](../figures/chapter01/...)

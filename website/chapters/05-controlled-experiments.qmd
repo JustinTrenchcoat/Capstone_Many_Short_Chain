@@ -1,0 +1,75 @@
+---
+title: "5. More Tests, Easier Targets"
+---
+
+# More Tests, Easier Targets
+
+## Why Multivariate Normal Distributions?
+
+[Explain why controlled distributions are useful.]
+
+## The Experimental Strategy
+
+We systematically vary:
+
+- dimensionality,
+- variance structure,
+- correlation structure,
+- anisotropy,
+- coordinate representation.
+
+The main quantities of interest are:
+
+- warmup length,
+- nested $\widehat{R}$,
+- mean squared error.
+
+## 1. Bivariate Diagonal MVN
+
+[Explanation]
+
+[Figure]
+
+## 2. Bivariate AR(1) MVN
+
+[Explanation]
+
+[Figure]
+
+## 3. 100-Dimensional Isotropic MVN
+
+[Explanation]
+
+[Figure]
+
+## 4. 100-Dimensional AR(1) MVN
+
+[Explanation]
+
+[Figure]
+
+## 5. Bivariate Anisotropic MVN
+
+[Explanation]
+
+[Figure]
+
+## 6. 100-Dimensional Anisotropic MVN
+
+[Explanation]
+
+[Figure]
+
+## 7. Rotated Anisotropic MVN
+
+[Explanation]
+
+[Figure]
+
+## What Are We Looking For?
+
+[Explain the hypotheses/questions.]
+
+## Current Status
+
+This investigation is ongoing.

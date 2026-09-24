@@ -1,0 +1,52 @@
+---
+title: "Experiments"
+---
+
+# Experimental Design
+
+## Sampling Framework
+
+[TFP / BlackJAX]
+
+## Initialization
+
+### Naive
+
+### Constrained
+
+### PathFinder
+
+## Target Distributions
+
+### Paper Distributions
+
+### Multivariate Normal
+
+#### Diagonal covariance
+
+#### Isotropic covariance
+
+#### AR(1) covariance
+
+#### Anisotropic covariance
+
+#### Rotated anisotropic covariance
+
+## Experimental Factors
+
+| Factor | Values |
+|---|---|
+| Dimension | 2, 100, ... |
+| Warmup | ... |
+| Initialization | Naive, Constrained, PathFinder |
+| Covariance | Diagonal, AR(1), ... |
+
+## Metrics
+
+### Nested $\widehat{R}$
+
+### MSE
+
+### ESS
+
+[etc.]

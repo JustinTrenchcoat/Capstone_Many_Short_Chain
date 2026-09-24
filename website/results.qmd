@@ -1,0 +1,37 @@
+---
+title: "Results"
+---
+
+# Results
+
+## What We Know So Far
+
+### Reproduction
+
+[Main finding]
+
+### Computational Framework
+
+[Main finding]
+
+### Initialization
+
+[Main finding]
+
+### PathFinder
+
+[Current observation + unresolved issue]
+
+### Controlled MVN Experiments
+
+[Currently under investigation]
+
+## Current Hypotheses
+
+[Your current hypotheses.]
+
+## Open Questions
+
+- ...
+- ...
+- ...
