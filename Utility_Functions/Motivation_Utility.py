@@ -214,7 +214,7 @@ def comparison_plot(params,
     )
 
     axes[0].set_title(
-        f"One Chain, K=1, M=1, N={total_chain}, MSE={mean_mse}"
+        f"One Chain, K=1, M=1, N={total_chain}, MSE={float(mean_mse):.4f}"
     )
     axes[0].set_xlabel(r"$\theta_1$")
     axes[0].set_ylabel(r"$\theta_2$")
@@ -238,8 +238,8 @@ def comparison_plot(params,
         )
 
     axes[1].set_title(
-        f"Multiple Chains, K={super_chain}, M=1, N={sub_chain}, "
-        f"rhat={float(multichain_r):.4f}, MSE={multichain_mse}"
+        f"Sequential Chains, K={super_chain}, M=1, N={sub_chain}, "
+        f"rhat={float(multichain_r):.4f}, MSE={float(multichain_mse):.4f}"
     )
 
     axes[1].set_xlabel(r"$\theta_1$")
@@ -294,7 +294,7 @@ def comparison_plot(params,
             )
 
     axes[2].set_title(
-        f"Many-Short-Chain, constrained, "
+        f"Constrained Many-Short-Chain,"
         f"K={super_chain}, M={sub_chain}, N=1, "
         f"nested rhat={float(MSC_C_r):.4f}, "
         f"MSE={float(MSE_C_MSE):.4f}"
@@ -323,8 +323,8 @@ def comparison_plot(params,
     )
 
     axes[3].set_title(
-        f"Many-Short-Chain, naive, "
-        f"K={total_chain}, M=1, N=1, "
+        f"Naive Many-Short-Chain, "
+        f"K={super_chain}, M={sub_chain}, N=1, "
         f"nested rhat={float(MSC_N_r):.4f}, "
         f"MSE={float(MSE_N_MSE):.4f}"
     )
