@@ -290,14 +290,14 @@ def MSE_vs_Rhat_8panel(
     # Titles
     # ==============
     titles = [
-        r"Constrained - No Rotation",
+        r"Constrained - No Transform",
         r"Constrained - $\rho = 0.3$",
         r"Constrained - $\rho = 0.6$",
         r"Constrained - $\rho = 0.9$",
-        r"Naive - No Rotation",
-        r"Naive - $\rho = 0.3$",
-        r"Naive - $\rho = 0.6$",
-        r"Naive - $\rho = 0.9$"
+        r"Constrained - No Transform",
+        r"Constrained - $\rho = -0.3$",
+        r"Constrained - $\rho = -0.6$",
+        r"Constrained - $\rho = -0.9$"
     ]
 
     # ==============
