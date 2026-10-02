@@ -8,7 +8,7 @@ import matplotlib.pyplot as plt
 ############################################
 # Line Plots
 def MSE_vs_Warmup(W_c_df, W_n_df,title, K, M):
-    fig, ax = plt.subplots(figsize=(10, 8), dpi=150)
+    fig, ax = plt.subplots(figsize=(10, 8), dpi=300)
     common = dict(
         logx=True,logy=True,
         legend=False,ax=ax,
@@ -49,7 +49,7 @@ def MSE_vs_Warmup(W_c_df, W_n_df,title, K, M):
 
 # Scatter Plots
 def MSE_vs_Rhat(df, title, naive, bound, threshold, K, num_subchains):
-    fig, ax = plt.subplots(figsize=(10, 8), dpi=150)
+    fig, ax = plt.subplots(figsize=(10, 8), dpi=300)
 
     ax.scatter(
         df["Rhat"] - 1,
@@ -92,7 +92,7 @@ def MSE_vs_Warmup_Jumbo(tfp_c_df, tfp_n_df,
                         bjx_c_df, bjx_n_df,
                         pf_c_df, pf_n_df,title,
                         K,M):
-    fig, ax = plt.subplots(figsize=(11, 7), dpi=150)
+    fig, ax = plt.subplots(figsize=(11, 7), dpi=300)
     colors = {
            "TFP":"orange",
            "BlackJAX":"red",
@@ -184,7 +184,7 @@ def MSE_vs_Rhat_color(dfs, titles, supertitle, bound,
     # ===============
     # scatterplots
     # ===============
-    fig, axes = plt.subplots(2,3, figsize=(25,10),dpi=150,
+    fig, axes = plt.subplots(2,3, figsize=(25,10),dpi=300,
                              sharex=True, sharey = True)
     axes = axes.flatten()
 
@@ -263,7 +263,8 @@ def MSE_vs_Rhat_color(dfs, titles, supertitle, bound,
 ####################################
 # Geometry Experiment Plotting Functions
 ####################################
-# For rotation experiements:
+
+# transformation comparison
 def MSE_vs_Rhat_8panel(
     dfs, bound, threshold, num_subchains, K, supertitle
 ):
@@ -306,7 +307,7 @@ def MSE_vs_Rhat_8panel(
     fig, axes = plt.subplots(
         2, 4,
         figsize=(28, 12),
-        dpi=150,
+        dpi=300,
         sharex=True,
         sharey=True
     )
@@ -494,17 +495,11 @@ def MSE_vs_Rhat_8panel(
     )
 
     plt.show()
-def plot_mse_vs_rhat_9(
-    name,
-    df,
-    warmup,
-    HighlightIdx1,
-    HighlightIdx2,
-    bound,
-    threshold,
-    num_chains_short,
-    num_super_chains
-):
+
+# Highlight special groups of dimensions  
+def plot_mse_vs_rhat_9(name, df, warmup, HighlightIdx1,
+                       HighlightIdx2, bound, threshold,
+                       num_chains_short, num_super_chains):
     if len(warmup) != 9:
         raise ValueError("warmup must contain exactly 9 values.")
 
@@ -534,7 +529,7 @@ def plot_mse_vs_rhat_9(
     fig, axes = plt.subplots(
         3, 3,
         figsize=(22, 15),
-        dpi=150,
+        dpi=300,
         sharex=True,
         sharey=True
     )
