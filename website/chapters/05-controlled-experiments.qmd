@@ -111,10 +111,10 @@ Select the two variables to display their corresponding covariance plot.
 
 <div class="bivariate-plot-panel">
   <img
-    id="bivariate-plot"
-    src="../figures/chapter05/cov1-1.png"
-    alt="Bivariate covariance plot for 1 and 1"
-  >
+  id="bivariate-plot"
+  src="/figures/chapter05/cov1-1.png"
+  alt="Bivariate covariance plot for 1 and 1"
+    >
 </div>
 ```
 
@@ -123,7 +123,7 @@ Select the two variables to display their corresponding covariance plot.
 function showBivariatePlot(var1, var2) {
   const plot = document.getElementById("bivariate-plot");
 
-  plot.src = `../figures/chapter05/cov${var1}-${var2}.png`;
+  plot.src = "/figures/chapter05/cov" + var1 + "-" + var2 + ".png";
   plot.alt = `Bivariate covariance plot for ${var1} and ${var2}`;
 }
 </script>
