@@ -186,7 +186,7 @@ def multiple_chains(warmup_length, sample_length,initialize_fn, randomKey,
 # Plotting function:
 #===============================
 # MSC stands for Many-Short_Chain
-def comparison_plot(params,
+def comparison_plot(params, name,
                     samples, mean_mse,
                     multichain_samples, multichain_mse, multichain_r, 
                     MSC_C, MSE_C_MSE, MSC_C_r,
@@ -194,8 +194,8 @@ def comparison_plot(params,
 
     super_chain, sub_chain, total_chain, warmup_length = params
 
-    fig, axes = plt.subplots(2, 2, figsize=(16, 12), dpi=150)
-    fig.suptitle(f"Comparison of MCMC Sampling Strategies, Warmup Length={warmup_length}",fontsize=18,fontweight="bold")
+    fig, axes = plt.subplots(2, 2, figsize=(16, 12), dpi=300)
+    fig.suptitle(f"Comparison of MCMC Sampling Strategies on {name}, Warmup Length={warmup_length}",fontsize=18,fontweight="bold")
     axes = axes.flatten()
 
     # ============================================================
@@ -239,7 +239,8 @@ def comparison_plot(params,
 
     axes[1].set_title(
         f"Sequential Chains, K={super_chain}, M=1, N={sub_chain}, "
-        f"rhat={float(multichain_r):.4f}, MSE={float(multichain_mse):.4f}"
+        r"$\widehat{R}$"
+        f"={float(multichain_r):.4f}, MSE={float(multichain_mse):.4f}"
     )
 
     axes[1].set_xlabel(r"$\theta_1$")
@@ -296,8 +297,9 @@ def comparison_plot(params,
     axes[2].set_title(
         f"Constrained Many-Short-Chain,"
         f"K={super_chain}, M={sub_chain}, N=1, "
-        f"nested rhat={float(MSC_C_r):.4f}, "
-        f"MSE={float(MSE_C_MSE):.4f}"
+        r"mean $\widehat{R}_{\nu}$"
+        f"={float(MSC_C_r):.4f}, "
+        f"mean MSE={float(MSE_C_MSE):.4f}"
     )
 
     axes[2].set_xlabel(r"$\theta_1$")
@@ -325,8 +327,9 @@ def comparison_plot(params,
     axes[3].set_title(
         f"Naive Many-Short-Chain, "
         f"K={super_chain}, M={sub_chain}, N=1, "
-        f"nested rhat={float(MSC_N_r):.4f}, "
-        f"MSE={float(MSE_N_MSE):.4f}"
+        r"mean $\widehat{R}_{\nu}$"
+        f"={float(MSC_N_r):.4f}, "
+        f"mean MSE={float(MSE_N_MSE):.4f}"
     )
 
     axes[3].set_xlabel(r"$\theta_1$")
