@@ -33,16 +33,18 @@ title: "5. More Tests, Easier Targets"
   max-width: 100%;
   height: auto;
 }
+
+.bivariate-plot-panel img.error {
+  border: 3px solid red;
+}
 </style>
 ```
 
-**# More Tests, Easier Targets**
-
-**## Why Multivariate Normal Distributions?**
+## **Why Multivariate Normal Distributions?**
 
 [Explain why controlled distributions are useful.]
 
-**## The Experimental Strategy**
+## **The Experimental Strategy**
 
 We systematically vary:
 
@@ -58,90 +60,69 @@ The main quantities of interest are:
 - nested $\widehat{R}$,
 - mean squared error.
 
-**## 1. Bivariate Normal Distributions**
+## **1. Bivariate Normal Distributions**
 
-**## Bivariate covariance structures**
+### Bivariate covariance structures
 
 Select the two variables to display their corresponding covariance plot.
 
 ```{=html}
 <div class="bivariate-controls">
-
-  <button onclick="showBivariatePlot(1, 1)">
-    1–1
-  </button>
-
-  <button onclick="showBivariatePlot(10, 10)">
-    10–10
-  </button>
-
-  <button onclick="showBivariatePlot(100, 100)">
-    100–100
-  </button>
-
-  <button onclick="showBivariatePlot(1000, 1000)">
-    1000–1000
-  </button>
-
-  <button onclick="showBivariatePlot(10, 1)">
-    10–1
-  </button>
-
-  <button onclick="showBivariatePlot(100, 1)">
-    100–1
-  </button>
-
-  <button onclick="showBivariatePlot(100, 10)">
-    100–10
-  </button>
-
-  <button onclick="showBivariatePlot(1000, 1)">
-    1000–1
-  </button>
-
-  <button onclick="showBivariatePlot(1000, 10)">
-    1000–10
-  </button>
-
-  <button onclick="showBivariatePlot(1000, 100)">
-    1000–100
-  </button>
-
+  <button onclick="showBivariatePlot(1, 1)">1–1</button>
+  <button onclick="showBivariatePlot(10, 10)">10–10</button>
+  <button onclick="showBivariatePlot(100, 100)">100–100</button>
+  <button onclick="showBivariatePlot(1000, 1000)">1000–1000</button>
+  <button onclick="showBivariatePlot(10, 1)">10–1</button>
+  <button onclick="showBivariatePlot(100, 1)">100–1</button>
+  <button onclick="showBivariatePlot(100, 10)">100–10</button>
+  <button onclick="showBivariatePlot(1000, 1)">1000–1</button>
+  <button onclick="showBivariatePlot(1000, 10)">1000–10</button>
+  <button onclick="showBivariatePlot(1000, 100)">1000–100</button>
 </div>
 
 <div class="bivariate-plot-panel">
   <img
-  id="bivariate-plot"
-  src="/figures/chapter05/cov1-1.png"
-  alt="Bivariate covariance plot for 1 and 1"
-    >
+    id="bivariate-plot"
+    src="figures/chapter05/cov1_1.png"
+    alt="Bivariate covariance plot for 1 and 1"
+  >
 </div>
-```
 
-```{=html}
 <script>
-function showBivariatePlot(var1, var2) {
+(function () {
+  const BASE = "figures/chapter05/";
+
   const plot = document.getElementById("bivariate-plot");
 
-  plot.src = "/figures/chapter05/cov" + var1 + "-" + var2 + ".png";
-  plot.alt = `Bivariate covariance plot for ${var1} and ${var2}`;
-}
+  plot.addEventListener("error", function () {
+    plot.classList.add("error");
+    plot.alt = "MISSING: " + plot.getAttribute("src");
+  });
+
+  plot.addEventListener("load", function () {
+    plot.classList.remove("error");
+  });
+
+  window.showBivariatePlot = function (var1, var2) {
+    plot.src = BASE + "cov" + var1 + "_" + var2 + ".png";
+    plot.alt = "Bivariate covariance plot for " + var1 + " and " + var2;
+  };
+})();
 </script>
 ```
 
-**## 2. Trivariate Normal**
+## **2. Trivariate Normal**
 
 [Explanation]
 
 [Figure]
 
-**## 3. 100-Dimensional MVN**
+## **3. 100-Dimensional MVN**
 
 [Explanation]
 
 [Figure]
 
-
-**## What Are We Looking For?**
+## **What Are We Looking For?**
 
 We are looking for the connection between the MSE vs. $\widehat{R}_{\nu}$ on different distributions.
