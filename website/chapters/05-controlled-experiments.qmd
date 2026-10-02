@@ -2,74 +2,146 @@
 title: "5. More Tests, Easier Targets"
 ---
 
-# More Tests, Easier Targets
+```{=html}
+<style>
+.bivariate-controls {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-bottom: 1.5rem;
+}
 
-## Why Multivariate Normal Distributions?
+.bivariate-controls button {
+  padding: 0.5rem 1rem;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  background: white;
+  cursor: pointer;
+  font-size: 0.95rem;
+}
+
+.bivariate-controls button:hover {
+  background: #f2f2f2;
+}
+
+.bivariate-plot-panel {
+  text-align: center;
+  margin-top: 1rem;
+}
+
+.bivariate-plot-panel img {
+  max-width: 100%;
+  height: auto;
+}
+</style>
+```
+
+**# More Tests, Easier Targets**
+
+**## Why Multivariate Normal Distributions?**
 
 [Explain why controlled distributions are useful.]
 
-## The Experimental Strategy
+**## The Experimental Strategy**
 
 We systematically vary:
 
-- dimensionality,
-- variance structure,
-- correlation structure,
-- anisotropy,
-- coordinate representation.
+\- dimensionality,
+\- variance structure,
+\- correlation structure,
+\- anisotropy,
+\- coordinate representation.
 
 The main quantities of interest are:
 
-- warmup length,
-- nested $\widehat{R}$,
-- mean squared error.
+\- warmup length,
+\- nested $\widehat{R}$,
+\- mean squared error.
 
-## 1. Bivariate Diagonal MVN
+**## 1. Bivariate Normal Distributions**
+
+**## Bivariate covariance structures**
+
+Select the two variables to display their corresponding covariance plot.
+
+```{=html}
+<div class="bivariate-controls">
+
+  <button onclick="showBivariatePlot(1, 1)">
+    1–1
+  </button>
+
+  <button onclick="showBivariatePlot(10, 10)">
+    10–10
+  </button>
+
+  <button onclick="showBivariatePlot(100, 100)">
+    100–100
+  </button>
+
+  <button onclick="showBivariatePlot(1000, 1000)">
+    1000–1000
+  </button>
+
+  <button onclick="showBivariatePlot(10, 1)">
+    10–1
+  </button>
+
+  <button onclick="showBivariatePlot(100, 1)">
+    100–1
+  </button>
+
+  <button onclick="showBivariatePlot(100, 10)">
+    100–10
+  </button>
+
+  <button onclick="showBivariatePlot(1000, 1)">
+    1000–1
+  </button>
+
+  <button onclick="showBivariatePlot(1000, 10)">
+    1000–10
+  </button>
+
+  <button onclick="showBivariatePlot(1000, 100)">
+    1000–100
+  </button>
+
+</div>
+
+<div class="bivariate-plot-panel">
+  <img
+    id="bivariate-plot"
+    src="figures/chapter05/cov1-1.png"
+    alt="Bivariate covariance plot for 1 and 1"
+  >
+</div>
+```
+
+```{=html}
+<script>
+function showBivariatePlot(var1, var2) {
+  const plot = document.getElementById("bivariate-plot");
+
+  plot.src = `figures/chapter05/cov${var1}-${var2}.png`;
+  plot.alt = `Bivariate covariance plot for ${var1} and ${var2}`;
+}
+</script>
+```
+
+**## 2. Trivariate Normal**
 
 [Explanation]
 
 [Figure]
 
-## 2. Bivariate AR(1) MVN
+**## 3. 100-Dimensional MVN**
 
 [Explanation]
 
 [Figure]
 
-## 3. 100-Dimensional Isotropic MVN
 
-[Explanation]
+**## What Are We Looking For?**
 
-[Figure]
-
-## 4. 100-Dimensional AR(1) MVN
-
-[Explanation]
-
-[Figure]
-
-## 5. Bivariate Anisotropic MVN
-
-[Explanation]
-
-[Figure]
-
-## 6. 100-Dimensional Anisotropic MVN
-
-[Explanation]
-
-[Figure]
-
-## 7. Rotated Anisotropic MVN
-
-[Explanation]
-
-[Figure]
-
-## What Are We Looking For?
-
-[Explain the hypotheses/questions.]
-
-## Current Status
-
-This investigation is ongoing.
+We are looking for the connection between the MSE vs. $\widehat{R}_{\nu}$ on different distributions.
