@@ -2,44 +2,6 @@
 title: "5. More Tests, Easier Targets"
 ---
 
-```{=html}
-<style>
-.bivariate-controls {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.5rem;
-  margin-bottom: 1.5rem;
-}
-
-.bivariate-controls button {
-  padding: 0.5rem 1rem;
-  border: 1px solid #ccc;
-  border-radius: 6px;
-  background: white;
-  cursor: pointer;
-  font-size: 0.95rem;
-}
-
-.bivariate-controls button:hover {
-  background: #f2f2f2;
-}
-
-.bivariate-plot-panel {
-  text-align: center;
-  margin-top: 1rem;
-}
-
-.bivariate-plot-panel img {
-  max-width: 100%;
-  height: auto;
-}
-
-.bivariate-plot-panel img.error {
-  border: 3px solid red;
-}
-</style>
-```
-
 ## **Why Multivariate Normal Distributions?**
 
 [Explain why controlled distributions are useful.]
@@ -64,52 +26,123 @@ The main quantities of interest are:
 
 ### Bivariate covariance structures
 
-Select the two variables to display their corresponding covariance plot.
+Click on the button to see plots with their corresponding variance.
 
-```{=html}
-<div class="bivariate-controls">
-  <button onclick="showBivariatePlot(1, 1)">1–1</button>
-  <button onclick="showBivariatePlot(10, 10)">10–10</button>
-  <button onclick="showBivariatePlot(100, 100)">100–100</button>
-  <button onclick="showBivariatePlot(1000, 1000)">1000–1000</button>
-  <button onclick="showBivariatePlot(10, 1)">10–1</button>
-  <button onclick="showBivariatePlot(100, 1)">100–1</button>
-  <button onclick="showBivariatePlot(100, 10)">100–10</button>
-  <button onclick="showBivariatePlot(1000, 1)">1000–1</button>
-  <button onclick="showBivariatePlot(1000, 10)">1000–10</button>
-  <button onclick="showBivariatePlot(1000, 100)">1000–100</button>
-</div>
+::: {.button-container}
+<button class="cov-button active" onclick="showPlot('plot-1-1')">1-1</button>
+<button class="cov-button" onclick="showPlot('plot-10-1')">10-1</button>
+<button class="cov-button" onclick="showPlot('plot-100-1')">100-1</button>
+<button class="cov-button" onclick="showPlot('plot-1000-1')">1000-1</button>
+<button class="cov-button" onclick="showPlot('plot-10-10')">10-10</button>
+<button class="cov-button" onclick="showPlot('plot-100-10')">100-10</button>
+<button class="cov-button" onclick="showPlot('plot-1000-10')">1000-10</button>
+<button class="cov-button" onclick="showPlot('plot-100-100')">100-100</button>
+<button class="cov-button" onclick="showPlot('plot-1000-100')">1000-100</button>
+<button class="cov-button" onclick="showPlot('plot-1000-1000')">1000-1000</button>
+:::
 
-<div class="bivariate-plot-panel">
-  <img
-    id="bivariate-plot"
-    src="figures/chapter05/cov1_1.png"
-    alt="Bivariate covariance plot for 1 and 1"
-  >
-</div>
+::: {#plot-1-1 .plot-container}
+![Covariance 1-1](/figures/chapter05/cov1_1.png)
+:::
+
+::: {#plot-10-1 .plot-container}
+![Covariance 10-1](/figures/chapter05/cov10_1.png)
+:::
+
+::: {#plot-10-10 .plot-container}
+![Covariance 10-10](/figures/chapter05/cov10_10.png)
+:::
+
+::: {#plot-100-1 .plot-container}
+![Covariance 100-1](/figures/chapter05/cov100_1.png)
+:::
+
+::: {#plot-100-10 .plot-container}
+![Covariance 100-10](/figures/chapter05/cov100_10.png)
+:::
+
+::: {#plot-100-100 .plot-container}
+![Covariance 100-100](/figures/chapter05/cov100_100.png)
+:::
+
+::: {#plot-1000-1 .plot-container}
+![Covariance 1000-1](/figures/chapter05/cov1000_1.png)
+:::
+
+::: {#plot-1000-10 .plot-container}
+![Covariance 1000-10](/figures/chapter05/cov1000_10.png)
+:::
+
+::: {#plot-1000-100 .plot-container}
+![Covariance 1000-100](/figures/chapter05/cov1000_100.png)
+:::
+
+::: {#plot-1000-1000 .plot-container}
+![Covariance 1000-1000](/figures/chapter05/cov1000_1000.png)
+:::
+
+<style>
+.button-container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin: 20px 0;
+}
+
+.cov-button {
+  padding: 10px 20px;
+  background-color: #f0f0f0;
+  border: 2px solid #ccc;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 500;
+  transition: all 0.3s ease;
+}
+
+.cov-button:hover {
+  background-color: #e0e0e0;
+  border-color: #999;
+}
+
+.cov-button.active {
+  background-color: #4a90d9;
+  color: white;
+  border-color: #4a90d9;
+}
+
+.plot-container {
+  display: none;
+  margin-top: 20px;
+}
+
+.plot-container img {
+  max-width: 100%;
+  height: auto;
+}
+
+.plot-container:first-of-type {
+  display: block;
+}
+</style>
 
 <script>
-(function () {
-  const BASE = "figures/chapter05/";
+function showPlot(plotId) {
+  const allPlots = document.querySelectorAll('.plot-container');
+  allPlots.forEach(plot => plot.style.display = 'none');
 
-  const plot = document.getElementById("bivariate-plot");
+  const allButtons = document.querySelectorAll('.cov-button');
+  allButtons.forEach(btn => btn.classList.remove('active'));
 
-  plot.addEventListener("error", function () {
-    plot.classList.add("error");
-    plot.alt = "MISSING: " + plot.getAttribute("src");
-  });
+  const selectedPlot = document.getElementById(plotId);
+  if (selectedPlot) {
+    selectedPlot.style.display = 'block';
+  }
 
-  plot.addEventListener("load", function () {
-    plot.classList.remove("error");
-  });
-
-  window.showBivariatePlot = function (var1, var2) {
-    plot.src = BASE + "cov" + var1 + "_" + var2 + ".png";
-    plot.alt = "Bivariate covariance plot for " + var1 + " and " + var2;
-  };
-})();
+  event.currentTarget.classList.add('active');
+}
 </script>
-```
+
 
 ## **2. Trivariate Normal**
 
