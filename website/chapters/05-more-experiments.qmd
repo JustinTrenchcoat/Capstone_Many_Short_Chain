@@ -50,7 +50,7 @@ Select the two variables to display their corresponding covariance plot.
 :::
 
 ::: {.plot-panel}
-<img id="cov-plot" src="/figures/chapter05/bivariate/cov1_1.png" alt="Covariance plot">
+<img id="cov-plot" src="../figures/chapter05/bivariate/cov1_1.png" alt="Covariance plot">
 :::
 
 <style>
@@ -160,7 +160,7 @@ Select the two variables to display their corresponding covariance plot.
 let currentConfig = '1-1';
 
 function fileStem(config) {
-  return '/figures/chapter05/bivariate/cov' + config.replace('-', '_');
+  return '../figures/chapter05/bivariate/cov' + config.replace('-', '_');
 }
 
 function renderPlot() {
