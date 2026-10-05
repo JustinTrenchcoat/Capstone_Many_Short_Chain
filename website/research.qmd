@@ -67,36 +67,49 @@ flowchart TD
 
 ## Chapters
 
-### 1. Before It All Started
-The project begins with the motivation for studying many-short-chain MCMC and the computational setting that makes large numbers of parallel chains practical. 
-This chapter introduces the basic MCMC setup, the role of warmup and initialization, and the motivation for using many short chains rather than relying only on a small number of long chains.
+### 1. Motivation
 
-[Read the chapter →](chapters/01-before-it-started.qmd)
+Why consider many-short-chain MCMC in the first place?  
+This chapter introduces the computational motivation behind running many short chains in parallel, comparing the traditional use of a small number of long chains consecutively and the many-short-chain setting.  
+The comparison provides the context for studying how convergence assessment may behave when MCMC computation is distributed across many short chains.
 
-### 2. Starting Point
+[Read the chapter →](chapters/01-motivation.qmd)
 
-The first stage of the investigation reproduces experiments from the original nested R-hat work. 
-The experiments establish the initial computational framework and examine how nested R-hat behaves under different warmup lengths and initialization procedures.
+### 2. Replication
 
-[Read the chapter →](chapters/02-starting-point.qmd)
+The investigation begins by reproducing experiments from the original work on $\hat{R}_{\nu}$.  
+This chapter introduces the experimental setup and shows the replicated results, establishing a baseline for the subsequent investigation.  
+The goal is to verify the original behavior in a reproducible computational framework before asking whether the same behavior persists under different implementations and experimental settings.
+
+[Read the chapter →](chapters/02-replication.qmd)
 
 ### 3. Moving Beyond
 
-After establishing the initial results, the investigation moves beyond the original implementation. 
-The experiments are reproduced using BlackJAX to determine whether the observed behavior persists across sampling frameworks and to separate properties of the diagnostic from properties of a particular implementation.
+The investigation then moves beyond the original implementation.  
+The experiments are reproduced using BlackJAX to examine whether the observed behavior persists across MCMC implementations.  
+The chapter also investigates initialization strategies, including Pathfinder-based initialization.  
+To make the comparison possible, the Pathfinder implementation in BlackJAX was modified to produce an initialization procedure closer to the constrained initialization used in the original experiments.
+
+The resulting experiments compare different implementations and initialization strategies using scaled mean squared error and $\hat{R}_{\nu}$ across different warmup lengths.
 
 [Read the chapter →](chapters/03-moving-beyond.qmd)
 
-### 4. What Does Initialization Do?
+### 4. Discoveries
 
-The next stage focuses explicitly on initialization. In particular, the project investigates whether Pathfinder-based initialization can provide a more favorable starting point for MCMC and potentially reduce the amount of warmup required. 
-Unexpected behavior in these experiments motivates a transition toward more controlled target distributions.
+The preceding experiments reveal several patterns that motivate further investigation.  
+In particular, the behavior of $\hat{R}_{\nu}$ appears to vary across dimensions and warmup lengths, raising questions about the role of the variance of individual variables and the overall geometry of the target distribution.
 
-[Read the chapter →](chapters/04-initialization.qmd)
+This chapter presents these observations through $\hat{R}_{\nu}$ histograms and selected highlight plots, where a subset of variables will be highlighted in the $\hat{R}_{\nu}$ vs. MSE plots across warmup lengths to show their behavior trends.  
+Rather than treating these patterns as isolated results, the chapter uses them to formulate new questions about what determines the behavior of $\hat{R}_{\nu}$ as MCMC progresses.
 
-### 5. More Tests, Easier Targets
+[Read the chapter →](chapters/04-discoveries.qmd)
 
-The investigation then moves to controlled experiments using multivariate normal distributions. These targets make it possible to vary dimensionality, covariance structure, and geometry systematically while maintaining a known target distribution. 
-The goal is to isolate how these factors influence warmup, sampling accuracy, and nested R-hat.
+### 5. More Experiments
 
-[Read the chapter →](chapters/05-controlled-experiments.qmd)
+To investigate the questions raised by the previous experiments, the study moves to multivariate normal targets.  
+Bivariate, trivariate, and 100-dimensional normal distributions allow dimensionality, variance, dependence, and geometry to be varied in a controlled setting while retaining a known target distribution.
+
+The chapter presents both selected highlight plots and comparisons between sampling error and $\hat{R}_{\nu}$.  
+These experiments are used to examine whether the patterns observed earlier persist under systematically controlled changes in the target distribution.
+
+[Read the chapter →](chapters/05-more-experiments.qmd)

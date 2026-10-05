@@ -1,5 +1,5 @@
 ---
-title: "5. More Tests, Easier Targets"
+title: "5. More Experiments, Easier Targets"
 ---
 
 ## **Why Multivariate Normal Distributions?**
@@ -42,43 +42,43 @@ Click on the button to see plots with their corresponding variance.
 :::
 
 ::: {#plot-1-1 .plot-container}
-![Covariance 1-1](/figures/chapter05/cov1_1.png)
+![Covariance 1-1](/figures/chapter05/bivariate/cov1_1.png)
 :::
 
 ::: {#plot-10-1 .plot-container}
-![Covariance 10-1](/figures/chapter05/cov10_1.png)
+![Covariance 10-1](/figures/chapter05/bivariate/cov10_1.png)
 :::
 
 ::: {#plot-10-10 .plot-container}
-![Covariance 10-10](/figures/chapter05/cov10_10.png)
+![Covariance 10-10](/figures/chapter05/bivariate/cov10_10.png)
 :::
 
 ::: {#plot-100-1 .plot-container}
-![Covariance 100-1](/figures/chapter05/cov100_1.png)
+![Covariance 100-1](/figures/chapter05/bivariate/cov100_1.png)
 :::
 
 ::: {#plot-100-10 .plot-container}
-![Covariance 100-10](/figures/chapter05/cov100_10.png)
+![Covariance 100-10](/figures/chapter05/bivariate/cov100_10.png)
 :::
 
 ::: {#plot-100-100 .plot-container}
-![Covariance 100-100](/figures/chapter05/cov100_100.png)
+![Covariance 100-100](/figures/chapter05/bivariate/cov100_100.png)
 :::
 
 ::: {#plot-1000-1 .plot-container}
-![Covariance 1000-1](/figures/chapter05/cov1000_1.png)
+![Covariance 1000-1](/figures/chapter05/bivariate/cov1000_1.png)
 :::
 
 ::: {#plot-1000-10 .plot-container}
-![Covariance 1000-10](/figures/chapter05/cov1000_10.png)
+![Covariance 1000-10](/figures/chapter05/bivariate/cov1000_10.png)
 :::
 
 ::: {#plot-1000-100 .plot-container}
-![Covariance 1000-100](/figures/chapter05/cov1000_100.png)
+![Covariance 1000-100](/figures/chapter05/bivariate/cov1000_100.png)
 :::
 
 ::: {#plot-1000-1000 .plot-container}
-![Covariance 1000-1000](/figures/chapter05/cov1000_1000.png)
+![Covariance 1000-1000](/figures/chapter05/bivariate/cov1000_1000.png)
 :::
 
 <style>
