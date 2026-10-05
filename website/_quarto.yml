@@ -32,11 +32,11 @@ website:
     - title: "Research Story"
       style: "docked"
       contents:
-        - chapters/01-before-it-started.qmd
-        - chapters/02-starting-point.qmd
+        - chapters/01-motivation.qmd
+        - chapters/02-replication.qmd
         - chapters/03-moving-beyond.qmd
-        - chapters/04-initialization.qmd
-        - chapters/05-controlled-experiments.qmd
+        - chapters/04-discoveries.qmd
+        - chapters/05-more-experiments.qmd
 
 format:
   html:
