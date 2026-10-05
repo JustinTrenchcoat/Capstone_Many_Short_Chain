@@ -1,5 +1,5 @@
 ---
-title: "4. What Does Initialization Do?"
+title: "4. Discoveries"
 ---
 
 # What Does Initialization Do?
