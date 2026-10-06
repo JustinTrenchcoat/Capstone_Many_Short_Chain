@@ -32,17 +32,40 @@ $$
 
 ## Reproducing the Results
 
-### Original Results
+### Scaled Squared Error vs. Warmup Length
 
-[Plot]
+::: {layout-nrow=2}
+![](../figures/chapter02/OG_Rosen_Line.png)
 
-### Reproduced Results
+![](../figures/chapter02/OG_Bimodal_Line.png)
 
-[Plot]
+![](../figures/chapter02/OG_School_Line.png)
 
-## Looking Through Warmup
+![](../figures/chapter02/OG_IRT_Line.png)
+:::
 
-[Warmup-colored plots]
+### Scaled Squared Error vs. Nested $\widehat{R}$, under Constrained intialization
+::: {layout-nrow=2}
+![](../figures/chapter02/OG_Rosen_C.png)
+
+![](../figures/chapter02/OG_Bimodal_C.png)
+
+![](../figures/chapter02/OG_School_C.png)
+
+![](../figures/chapter02/OG_IRT_C.png)
+:::
+
+### Scaled Squared Error vs. Nested $\widehat{R}$, under Naive intialization
+::: {layout-nrow=2}
+![](../figures/chapter02/OG_Rosen_N.png)
+
+![](../figures/chapter02/OG_Bimodal_N.png)
+
+![](../figures/chapter02/OG_School_N.png)
+
+![](../figures/chapter02/OG_IRT_N.png)
+:::
+
 
 ## What Did We Learn?
 

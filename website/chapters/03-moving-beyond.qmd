@@ -14,17 +14,29 @@ title: "3. Moving Beyond"
 
 ## Repeating the Experiments
 
-### Uncolored Results
+## Comparing Frameworks
 
-[Plots]
+::: {layout-nrow=2}
+![](../figures/chapter03/Enhance_Rosen_Line.png)
+
+![](../figures/chapter03/Enhance_Bimodal_Line.png)
+
+![](../figures/chapter03/Enhance_School_Line.png)
+
+![](../figures/chapter03/Enhance_IRT_Line.png)
+:::
 
 ### Warmup-Coloring
 
-[Plots]
+::: {layout-nrow=4}
+![](../figures/chapter03/Enhance_Rosen_W.png)
 
-## Comparing Frameworks
+![](../figures/chapter03/Enhance_Bimodal_W.png)
 
-[Side-by-side comparison.]
+![](../figures/chapter03/Enhance_School_W.png)
+
+![](../figures/chapter03/Enhance_IRT_W.png)
+:::
 
 ## Interpretation
 

@@ -200,7 +200,13 @@ function toggleColored() {
 
 [Explanation]
 
-[Figure]
+### Highlight Plots
+
+::: {layout-nrow=2}
+![](../figures/chapter04/highlights/D100_noTransform.png)
+
+![](../figures/chapter04/highlights/D100_withTransform.png)
+:::
 
 ## **What Are We Looking For?**
 

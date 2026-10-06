@@ -2,33 +2,44 @@
 title: "4. Discoveries"
 ---
 
-# What Does Initialization Do?
+# What Do We Know?
 
-## From Initialization to Warmup
+## Distribution of diagnostics
 
 [Explain the conceptual transition.]
 
-## Can We Start From Somewhere Better?
+## Plots
 
-[Motivation for PathFinder.]
+### Histograms
 
-## PathFinder
+#### Eight Schools distribution
+::: {layout-nrow=2}
+![](../figures/chapter04/histograms/School_C_BJX.png)
 
-[Brief explanation.]
+![](../figures/chapter04/histograms/School_C_PF.png)
+:::
 
-## Experiments
+#### Item Response distribution
+::: {layout-nrow=2}
+![](../figures/chapter04/histograms/IRT_C_BJX.png)
 
-### Paper Distributions
+![](../figures/chapter04/histograms/IRT_C_PF.png)
+:::
 
-[Plots]
+#### D100 normal distribution
+::: {layout-nrow=2}
+![](../figures/chapter04/histograms/D100_C_noTransform.png)
 
-### Warmup Behavior
+![](../figures/chapter04/histograms/D100_C_withTransform.png)
+:::
 
-[Colored plots]
+#### Trivariate distribution
+::: {layout-nrow=2}
+![$\rho=-0.9$](../figures/chapter04/histograms/Trivariate321_C_N9.png)
 
-## An Unexpected Result
+![$\rho=0.9$](../figures/chapter04/histograms/Trivariate321_C_P9.png)
+:::
 
-[Your weird PathFinder behavior.]
 
 ## An Open Question
 

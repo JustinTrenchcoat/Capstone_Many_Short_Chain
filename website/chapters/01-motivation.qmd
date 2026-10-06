@@ -20,4 +20,4 @@ title: "1. Before It All Started"
 
 [Explain the comparison.]
 
-![Single-chain comparison](../figures/chapter01/...)
+![Single-chain comparison](../figures/chapter01/motivation_example.png)
