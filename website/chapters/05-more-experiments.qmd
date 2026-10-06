@@ -203,9 +203,9 @@ function toggleColored() {
 ### Highlight Plots
 
 ::: {layout-nrow=2}
-![](../figures/chapter04/highlights/D100_noTransform.png)
+![](../figures/chapter05/d100/highlights_noTransform.png)
 
-![](../figures/chapter04/highlights/D100_withTransform.png)
+![](../figures/chapter05/d100/highlight_withTransform.png)
 :::
 
 ## **What Are We Looking For?**
