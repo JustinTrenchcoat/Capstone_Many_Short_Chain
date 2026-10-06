@@ -203,7 +203,7 @@ function toggleColored() {
 ### Highlight Plots
 
 ::: {layout-nrow=2}
-![](../figures/chapter05/d100/highlights_noTransform.png)
+![](../figures/chapter05/d100/highlight_noTransform.png)
 
 ![](../figures/chapter05/d100/highlight_withTransform.png)
 :::
