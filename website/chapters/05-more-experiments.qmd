@@ -2,7 +2,6 @@
 title: "5. More Experiments, Easier Targets"
 ---
 
-
 ## **Why Multivariate Normal Distributions?**
 
 [Explain why controlled distributions are useful.]
@@ -45,28 +44,12 @@ The main quantities of interest are:
 </div>
 
 <script>
-let currentConfig = '1-1';
-
-function fileStem(config) {
-  return '../figures/chapter05/covariance_structure/bivariate/' + config.replace(/-/g, '_');
-}
-
-function renderPlot() {
-  document.getElementById('cov-plot').src = fileStem(currentConfig) + '.png';
-}
-
-function showPlot(config) {
-  currentConfig = config;
-  renderPlot();
-}
-
-document.querySelectorAll('.cov-btn').forEach(btn => {
-  btn.addEventListener('click', () => showPlot(btn.dataset.config));
-});
-
-// Optional: highlight the active button
 document.querySelectorAll('.cov-btn').forEach(btn => {
   btn.addEventListener('click', () => {
+    const stem = '../figures/chapter05/covariance_structure/bivariate/'
+               + btn.dataset.config.replace(/-/g, '_');
+    document.getElementById('cov-plot').src = stem + '.png';
+
     document.querySelectorAll('.cov-btn').forEach(b => b.classList.remove('active'));
     btn.classList.add('active');
   });
@@ -103,20 +86,12 @@ regions of two bivariate normal distributions.
 </div>
 
 <script>
-let currentTriConfig = '10-10-1';
-
-function triFileStem(config) {
-  return '../figures/chapter05/covariance_structure/trivariate/' + config.replace(/-/g, '_');
-}
-
-function renderTriPlot() {
-  document.getElementById('tri-plot').src = triFileStem(currentTriConfig) + '.png';
-}
-
 document.querySelectorAll('.tri-btn').forEach(btn => {
   btn.addEventListener('click', () => {
-    currentTriConfig = btn.dataset.config;
-    renderTriPlot();
+    const stem = '../figures/chapter05/covariance_structure/trivariate/'
+               + btn.dataset.config.replace(/-/g, '_');
+    document.getElementById('tri-plot').src = stem + '.png';
+
     document.querySelectorAll('.tri-btn').forEach(b => b.classList.remove('active'));
     btn.classList.add('active');
   });
@@ -131,11 +106,30 @@ document.querySelectorAll('.tri-btn').forEach(btn => {
 
 ### Highlight Plots
 
-::: {layout-nrow=2}
-![](../figures/chapter05/d100/highlight_noTransform.png)
+<div class="button-row">
+  <button class="d100-btn" data-image="noTransform">Diagonal</button>
+  <button class="d100-btn" data-image="withTransform">Transformed</button>
+</div>
 
-![](../figures/chapter05/d100/highlight_withTransform.png)
-:::
+<div class="plot-panel">
+  <img id="d100-plot" src="../figures/chapter05/d100/highlight_noTransform.png" alt="100-dimensional MVN highlight plot">
+</div>
+
+<script>
+const d100Files = {
+  noTransform:   '../figures/chapter05/d100/highlight_noTransform.png',
+  withTransform: '../figures/chapter05/d100/highlight_withTransform.png'
+};
+
+document.querySelectorAll('.d100-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.getElementById('d100-plot').src = d100Files[btn.dataset.image];
+
+    document.querySelectorAll('.d100-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+  });
+});
+</script>
 
 ## **What Are We Looking For?**
 
