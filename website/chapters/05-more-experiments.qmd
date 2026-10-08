@@ -28,27 +28,27 @@ The main quantities of interest are:
 ### Varying Covariance Structures
 
 <div class="button-row">
-  <button class="cov-btn" data-config="1-1">$\sigma_1 = 1,\ \sigma_2 = 1$</button>
-  <button class="cov-btn" data-config="10-1">$\sigma_1 = 10,\ \sigma_2 = 1$</button>
-  <button class="cov-btn" data-config="10-10">$\sigma_1 = 10,\ \sigma_2 = 10$</button>
-  <button class="cov-btn" data-config="100-1">$\sigma_1 = 100,\ \sigma_2 = 1$</button>
-  <button class="cov-btn" data-config="100-10">$\sigma_1 = 100,\ \sigma_2 = 10$</button>
-  <button class="cov-btn" data-config="100-100">$\sigma_1 = 100,\ \sigma_2 = 100$</button>
-  <button class="cov-btn" data-config="1000-1">$\sigma_1 = 1000,\ \sigma_2 = 1$</button>
-  <button class="cov-btn" data-config="1000-10">$\sigma_1 = 1000,\ \sigma_2 = 10$</button>
-  <button class="cov-btn" data-config="1000-100">$\sigma_1 = 1000,\ \sigma_2 = 100$</button>
-  <button class="cov-btn" data-config="1000-1000">$\sigma_1 = 1000,\ \sigma_2 = 1000$</button>
+  <button class="cov-btn" data-config="1-1">$\sigma_1^2 = 1,\ \sigma_2^2 = 1$</button>
+  <button class="cov-btn" data-config="10-1">$\sigma_1^2 = 10,\ \sigma_2^2 = 1$</button>
+  <button class="cov-btn" data-config="100-1">$\sigma_1^2 = 100,\ \sigma_2^2 = 1$</button>
+  <button class="cov-btn" data-config="1000-1">$\sigma_1^2 = 1000,\ \sigma_2^2 = 1$</button>
+  <button class="cov-btn" data-config="10-10">$\sigma_1^2 = 10,\ \sigma_2^2 = 10$</button>
+  <button class="cov-btn" data-config="100-10">$\sigma_1^2 = 100,\ \sigma_2^2 = 10$</button>
+  <button class="cov-btn" data-config="1000-10">$\sigma_1^2 = 1000,\ \sigma_2^2 = 10$</button>
+  <button class="cov-btn" data-config="100-100">$\sigma_1^2 = 100,\ \sigma_2^2 = 100$</button>
+  <button class="cov-btn" data-config="1000-100">$\sigma_1^2 = 1000,\ \sigma_2^2 = 100$</button>
+  <button class="cov-btn" data-config="1000-1000">$\sigma_1^2 = 1000,\ \sigma_2^2 = 1000$</button>
 </div>
 
 <div class="plot-panel">
-  <img id="cov-plot" src="../figures/chapter05/bivariate/cov1_1.png" alt="Bivariate covariance plot">
+  <img id="cov-plot" src="../figures/chapter05/covariance_structure/bivariate/1_1.png" alt="Bivariate covariance plot">
 </div>
 
 <script>
 let currentConfig = '1-1';
 
 function fileStem(config) {
-  return '../figures/chapter05/bivariate/cov' + config.replace(/-/g, '_');
+  return '../figures/chapter05/covariance_structure/bivariate/' + config.replace(/-/g, '_');
 }
 
 function renderPlot() {

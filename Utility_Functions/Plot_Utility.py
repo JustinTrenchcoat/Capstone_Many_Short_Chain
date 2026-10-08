@@ -291,11 +291,11 @@ def MSE_vs_Rhat_8panel(
     # Titles
     # ==============
     titles = [
-        r"Constrained - No Transform",
+        r"Constrained - Diagonal",
         r"Constrained - $\rho = 0.3$",
         r"Constrained - $\rho = 0.6$",
         r"Constrained - $\rho = 0.9$",
-        r"Constrained - No Transform",
+        r"Constrained - Diagonal",
         r"Constrained - $\rho = -0.3$",
         r"Constrained - $\rho = -0.6$",
         r"Constrained - $\rho = -0.9$"
@@ -489,7 +489,7 @@ def MSE_vs_Rhat_8panel(
         va="top"
     )
     fig.suptitle(
-    rf"{supertitle}: MSE vs. $\widehat{{R}}_{{\nu}}$",
+    rf"{supertitle}, MSE vs. $\widehat{{R}}_{{\nu}}$",
     fontsize=20,
     fontweight="bold"
     )

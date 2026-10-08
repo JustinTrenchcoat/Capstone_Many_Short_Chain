@@ -46,3 +46,7 @@ format:
     toc-depth: 3
     code-fold: true
     code-tools: true
+    grid:
+      body-width: 1200px
+      sidebar-width: 220px
+      margin-width: 220px
