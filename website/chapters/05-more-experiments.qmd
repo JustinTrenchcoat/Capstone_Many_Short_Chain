@@ -75,53 +75,53 @@ document.querySelectorAll('.cov-btn').forEach(btn => {
 
 ### Varying Initialization Distribution
 
-#### Warmup Length Transition:
-$$
-\begin{bmatrix}
-  1000 & \rho*\sqrt{1000} \\
-  \rho*\sqrt{1000} & 1\\
-\end{bmatrix}
-$$
+*Use this tool to visualize how the target distribution and Initialzation distribution changes*
 
-::: {layout-nrow=3}
-![](../figures/chapter05/initialization/bivariate/warmup/1000_1_0.png)
+The following visualization shows the 68% and 95% probability
+regions of two bivariate normal distributions.
 
-![](../figures/chapter05/initialization/bivariate/warmup/1000_1_P3.png)
+<div id="bvn-experiment"></div>
 
-![](../figures/chapter05/initialization/bivariate/warmup/1000_1_P6.png)
+<script>
+  bvnVisualizer("bvn-experiment");
+</script>
 
-![](../figures/chapter05/initialization/bivariate/warmup/1000_1_N6.png)
-
-![](../figures/chapter05/initialization/bivariate/warmup/1000_1_P9.png)
-
-![](../figures/chapter05/initialization/bivariate/warmup/1000_1_N9.png)
-:::
-
-
-#### Histogram Transition:
-::: {layout-nrow=3}
-![](../figures/chapter05/initialization/bivariate/histogram/1000_1_P9_SD05.png)
-
-![](../figures/chapter05/initialization/bivariate/histogram/1000_1_P9_SD1.png)
-
-![](../figures/chapter05/initialization/bivariate/histogram/1000_1_P9_SD5.png)
-
-![](../figures/chapter05/initialization/bivariate/histogram/1000_1_P9_SD10.png)
-
-![](../figures/chapter05/initialization/bivariate/histogram/1000_1_P9_SD50.png)
-
-![](../figures/chapter05/initialization/bivariate/histogram/1000_1_P9_SD100.png)
-:::
 
 ## **2. Trivariate Normal**
 
 ### Varying Covariance Structures
-::: {layout-nrow=2}
-![](../figures/chapter05/trivariate/cov10_10_1.png)
-![](../figures/chapter05/trivariate/cov100_10_1.png)
-![](../figures/chapter05/trivariate/cov100_100_1.png)
-![](../figures/chapter05/trivariate/cov1000_100_1.png)
-:::
+
+<div class="button-row">
+  <button class="tri-btn" data-config="10-10-1">$\sigma_1^2 = 10,\ \sigma_2^2 = 10,\ \sigma_3^2 = 1$</button>
+  <button class="tri-btn" data-config="100-10-1">$\sigma_1^2 = 100,\ \sigma_2^2 = 10,\ \sigma_3^2 = 1$</button>
+  <button class="tri-btn" data-config="100-100-1">$\sigma_1^2 = 100,\ \sigma_2^2 = 100,\ \sigma_3^2 = 1$</button>
+  <button class="tri-btn" data-config="1000-100-1">$\sigma_1^2 = 1000,\ \sigma_2^2 = 100,\ \sigma_3^2 = 1$</button>
+</div>
+
+<div class="plot-panel">
+  <img id="tri-plot" src="../figures/chapter05/covariance_structure/trivariate/10_10_1.png" alt="Trivariate covariance plot">
+</div>
+
+<script>
+let currentTriConfig = '10-10-1';
+
+function triFileStem(config) {
+  return '../figures/chapter05/covariance_structure/trivariate/' + config.replace(/-/g, '_');
+}
+
+function renderTriPlot() {
+  document.getElementById('tri-plot').src = triFileStem(currentTriConfig) + '.png';
+}
+
+document.querySelectorAll('.tri-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    currentTriConfig = btn.dataset.config;
+    renderTriPlot();
+    document.querySelectorAll('.tri-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+  });
+});
+</script>
 
 ### Varying Initialization Distribution
 

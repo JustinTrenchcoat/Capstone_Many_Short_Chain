@@ -50,3 +50,6 @@ format:
       body-width: 1200px
       sidebar-width: 220px
       margin-width: 220px
+    include-in-header:
+      - text: |
+          <script src="../js/bivariate_normal.js"></script>
