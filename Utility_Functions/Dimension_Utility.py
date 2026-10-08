@@ -17,7 +17,8 @@ def Iso_builder(num_dim):
   def target_log_prob_fn(x):
       return target.log_prob(x)
   def initialize(shape, key):
-      return random.normal(key, shape + (num_dim,))
+     offset = 2
+     return 10*random.normal(key, shape + (num_dim,)) + offset
 
   mean_benchmark = target.mean()
   var_benchmark = target.variance()
@@ -37,10 +38,11 @@ def ar_builder(num_dim):
   def target_log_prob_fn(x):
       return target.log_prob(x)
   def initialize(shape, key):
-      return random.normal(key, shape + (num_dim,))
+       offset = 2
+       return 10*random.normal(key, shape + (num_dim,)) + offset
 
-  mean_benchmark = target.mean()
-  var_benchmark = target.variance()
+  mean_benchmark = jnp.zeros(num_dim)
+  var_benchmark = jnp.ones(num_dim)
 
   return target_log_prob_fn, initialize,init_step_size,mean_benchmark,var_benchmark
 

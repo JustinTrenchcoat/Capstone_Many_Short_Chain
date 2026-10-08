@@ -1,0 +1,19 @@
+.button-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+}
+
+.cov-btn.active {
+  outline: 2px solid #2780e3;
+}
+
+.plot-panel {
+  max-width: 1400px;
+}
+
+.plot-panel img {
+  width: 100%;
+  height: auto;
+}

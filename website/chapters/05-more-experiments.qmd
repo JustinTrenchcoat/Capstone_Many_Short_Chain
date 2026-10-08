@@ -2,6 +2,7 @@
 title: "5. More Experiments, Easier Targets"
 ---
 
+
 ## **Why Multivariate Normal Distributions?**
 
 [Explain why controlled distributions are useful.]
@@ -26,24 +27,51 @@ The main quantities of interest are:
 
 ### Varying Covariance Structures
 
-::: {layout-nrow=2}
-![](../figures/chapter05/bivariate/cov1_1.png)
-![](../figures/chapter05/bivariate/cov10_1.png)
-![](../figures/chapter05/bivariate/cov100_1.png)
-![](../figures/chapter05/bivariate/cov1000_1.png)
-:::
+<div class="button-row">
+  <button class="cov-btn" data-config="1-1">$\sigma_1 = 1,\ \sigma_2 = 1$</button>
+  <button class="cov-btn" data-config="10-1">$\sigma_1 = 10,\ \sigma_2 = 1$</button>
+  <button class="cov-btn" data-config="10-10">$\sigma_1 = 10,\ \sigma_2 = 10$</button>
+  <button class="cov-btn" data-config="100-1">$\sigma_1 = 100,\ \sigma_2 = 1$</button>
+  <button class="cov-btn" data-config="100-10">$\sigma_1 = 100,\ \sigma_2 = 10$</button>
+  <button class="cov-btn" data-config="100-100">$\sigma_1 = 100,\ \sigma_2 = 100$</button>
+  <button class="cov-btn" data-config="1000-1">$\sigma_1 = 1000,\ \sigma_2 = 1$</button>
+  <button class="cov-btn" data-config="1000-10">$\sigma_1 = 1000,\ \sigma_2 = 10$</button>
+  <button class="cov-btn" data-config="1000-100">$\sigma_1 = 1000,\ \sigma_2 = 100$</button>
+  <button class="cov-btn" data-config="1000-1000">$\sigma_1 = 1000,\ \sigma_2 = 1000$</button>
+</div>
 
-::: {layout-nrow=1}
-![](../figures/chapter05/bivariate/cov10_10.png)
-![](../figures/chapter05/bivariate/cov100_10.png)
-![](../figures/chapter05/bivariate/cov1000_10.png)
-:::
+<div class="plot-panel">
+  <img id="cov-plot" src="../figures/chapter05/bivariate/cov1_1.png" alt="Bivariate covariance plot">
+</div>
 
-::: {layout-nrow=1}
-![](../figures/chapter05/bivariate/cov100_100.png)
-![](../figures/chapter05/bivariate/cov1000_100.png)
-![](../figures/chapter05/bivariate/cov1000_1000.png)
-:::
+<script>
+let currentConfig = '1-1';
+
+function fileStem(config) {
+  return '../figures/chapter05/bivariate/cov' + config.replace(/-/g, '_');
+}
+
+function renderPlot() {
+  document.getElementById('cov-plot').src = fileStem(currentConfig) + '.png';
+}
+
+function showPlot(config) {
+  currentConfig = config;
+  renderPlot();
+}
+
+document.querySelectorAll('.cov-btn').forEach(btn => {
+  btn.addEventListener('click', () => showPlot(btn.dataset.config));
+});
+
+// Optional: highlight the active button
+document.querySelectorAll('.cov-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.cov-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+  });
+});
+</script>
 
 ### Varying Initialization Distribution
 
