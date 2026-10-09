@@ -112,13 +112,13 @@ document.querySelectorAll('.tri-btn').forEach(btn => {
 </div>
 
 <div class="plot-panel">
-  <img id="d100-plot" src="../figures/chapter05/d100/highlight_noTransform.png" alt="100-dimensional MVN highlight plot">
+  <img id="d100-plot" src="../figures/chapter05/covariance_structure/d100/highlight_noTransform.png" alt="100-dimensional MVN highlight plot">
 </div>
 
 <script>
 const d100Files = {
-  noTransform:   '../figures/chapter05/d100/highlight_noTransform.png',
-  withTransform: '../figures/chapter05/d100/highlight_withTransform.png'
+  noTransform:   '../figures/chapter05/covariance_structure/d100/highlight_noTransform.png',
+  withTransform: '../figures/chapter05/covariance_structure/d100/highlight_withTransform.png'
 };
 
 document.querySelectorAll('.d100-btn').forEach(btn => {
