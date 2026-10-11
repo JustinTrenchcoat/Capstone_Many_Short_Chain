@@ -185,17 +185,63 @@ def multiple_chains(warmup_length, sample_length,initialize_fn, randomKey,
 #===============================
 # Plotting function:
 #===============================
-# MSC stands for Many-Short_Chain
+# MSC stands for Many-Short-Chain
+def potential(theta1, theta2):
+    """
+    Negative log density up to an additive constant for:
+
+        theta1 ~ Normal(0, 10)
+        theta2 | theta1 ~ Normal(
+            0.03 * (theta1**2 - 100),
+            1
+        )
+    """
+    conditional_mean = 0.03 * (theta1**2 - 100)
+
+    return (
+        0.5 * (theta1 / 10)**2
+        + 0.5 * (theta2 - conditional_mean)**2
+    )
+
+
 def comparison_plot(params, name,
                     samples, mean_mse,
-                    multichain_samples, multichain_mse, multichain_r, 
+                    multichain_samples, multichain_mse, multichain_r,
                     MSC_C, MSE_C_MSE, MSC_C_r,
                     MSC_N, MSE_N_MSE, MSC_N_r):
 
     super_chain, sub_chain, total_chain, warmup_length = params
 
+    # ============================================================
+    # Target distribution level sets
+    # ============================================================
+
+    x_limits = (-40, 40)
+    y_limits = (-15, 45)
+
+    theta1 = np.linspace(*x_limits, 500)
+    theta2 = np.linspace(*y_limits, 500)
+
+    T1, T2 = np.meshgrid(theta1, theta2)
+
+    Z = potential(T1, T2)
+
+    # Fixed contour levels shared across all subplots
+    levels = np.linspace(0, 20, 5)
+
+    # ============================================================
+    # Create subplots
+    # ============================================================
+
     fig, axes = plt.subplots(2, 2, figsize=(16, 12), dpi=300)
-    fig.suptitle(f"Comparison of MCMC Sampling Strategies on {name}, Warmup Length={warmup_length}",fontsize=18,fontweight="bold")
+
+    fig.suptitle(
+        f"Comparison of MCMC Sampling Strategies on {name}, "
+        f"Warmup Length={warmup_length}",
+        fontsize=18,
+        fontweight="bold"
+    )
+
     axes = axes.flatten()
 
     # ============================================================
@@ -210,12 +256,15 @@ def comparison_plot(params, name,
         marker="o",
         markersize=2,
         linewidth=0.5,
-        alpha=0.7
+        alpha=0.7,
+        zorder=2
     )
 
     axes[0].set_title(
-        f"One Chain, K=1, M=1, N={total_chain}, MSE={float(mean_mse):.4f}"
+        f"One Chain, K=1, M=1, N={total_chain}, "
+        f"MSE={float(mean_mse):.4f}"
     )
+
     axes[0].set_xlabel(r"$\theta_1$")
     axes[0].set_ylabel(r"$\theta_2$")
 
@@ -234,13 +283,14 @@ def comparison_plot(params, name,
             markersize=2,
             linewidth=0.5,
             alpha=0.7,
-            label=f"Chain {iteration}"
+            label=f"Chain {iteration}",
+            zorder=2
         )
 
     axes[1].set_title(
         f"Sequential Chains, K={super_chain}, M=1, N={sub_chain}, "
-        r"$\widehat{R}$"
-        f"={float(multichain_r):.4f}, MSE={float(multichain_mse):.4f}"
+        f"rhat={float(multichain_r):.4f}, "
+        f"MSE={float(multichain_mse):.4f}"
     )
 
     axes[1].set_xlabel(r"$\theta_1$")
@@ -255,31 +305,28 @@ def comparison_plot(params, name,
     num_sub_chains = sub_chain
 
     # Get distinct base colors for each superchain
-    base_colors = [ mcolors.to_rgb(color)
-    for color in cc.glasbey[:super_chain]]
+    base_colors = [
+        mcolors.to_rgb(color)
+        for color in cc.glasbey[:super_chain]
+    ]
 
-    # Each superchain has num_sub_chains subchains.
-    # Since N=1, each row of MSC_C corresponds to one subchain.
+    # Each superchain has num_sub_chains subchains
+    shades = np.linspace(0.35, 1.0, num_sub_chains)
+
     for k in range(num_super_chains):
 
-        # Base color for this superchain
         base_color = base_colors[k]
-
-        # Generate different shades for subchains
-        shades = np.linspace(0.35, 1.0, num_sub_chains)
 
         for m in range(num_sub_chains):
 
-            # Chain index based on jnp.repeat ordering
             idx = k * num_sub_chains + m
 
-            # Skip if index exceeds number of samples
             if idx >= len(MSC_C):
                 continue
 
-            # Create shade by blending base color with white
             shade = shades[m]
 
+            # Blend the base color with white
             color = (
                 shade * base_color[0] + (1 - shade),
                 shade * base_color[1] + (1 - shade),
@@ -291,14 +338,14 @@ def comparison_plot(params, name,
                 MSC_C[idx, 1],
                 s=20,
                 color=color,
-                alpha=0.8
+                alpha=0.8,
+                zorder=2
             )
 
     axes[2].set_title(
-        f"Constrained Many-Short-Chain,"
+        f"Constrained Many-Short-Chain, "
         f"K={super_chain}, M={sub_chain}, N=1, "
-        r"mean $\widehat{R}_{\nu}$"
-        f"={float(MSC_C_r):.4f}, "
+        f"mean nested rhat={float(MSC_C_r):.4f}, "
         f"mean MSE={float(MSE_C_MSE):.4f}"
     )
 
@@ -311,7 +358,6 @@ def comparison_plot(params, name,
 
     num_points = len(MSC_N)
 
-    # Assign every point a different color
     point_colors = plt.cm.hsv(
         np.linspace(0, 1, num_points, endpoint=False)
     )
@@ -321,14 +367,14 @@ def comparison_plot(params, name,
         MSC_N[:, 1],
         s=20,
         c=point_colors,
-        alpha=0.8
+        alpha=0.8,
+        zorder=2
     )
 
     axes[3].set_title(
         f"Naive Many-Short-Chain, "
         f"K={super_chain}, M={sub_chain}, N=1, "
-        r"mean $\widehat{R}_{\nu}$"
-        f"={float(MSC_N_r):.4f}, "
+        f"mean nested rhat={float(MSC_N_r):.4f}, "
         f"mean MSE={float(MSE_N_MSE):.4f}"
     )
 
@@ -336,38 +382,27 @@ def comparison_plot(params, name,
     axes[3].set_ylabel(r"$\theta_2$")
 
     # ============================================================
-    # Shared axis limits
+    # Draw target distribution contours on all subplots
     # ============================================================
 
-    all_x = []
-    all_y = []
-
-    # One chain
-    all_x.append(one_chain[:, 0])
-    all_y.append(one_chain[:, 1])
-
-    # Multiple chains
-    for chain in multichain_samples:
-        all_x.append(chain["Samples"][:, 0])
-        all_y.append(chain["Samples"][:, 1])
-
-    # Constrained MSC
-    all_x.append(MSC_C[:, 0])
-    all_y.append(MSC_C[:, 1])
-
-    # Naive MSC
-    all_x.append(MSC_N[:, 0])
-    all_y.append(MSC_N[:, 1])
-
-    x_min = min(x.min() for x in all_x)
-    x_max = max(x.max() for x in all_x)
-
-    y_min = min(y.min() for y in all_y)
-    y_max = max(y.max() for y in all_y)
-
     for ax in axes:
-        ax.set_xlim(x_min, x_max)
-        ax.set_ylim(y_min, y_max)
+        ax.contour(
+            T1,
+            T2,
+            Z,
+            levels=levels,
+            colors="black",
+            linewidths=0.8,
+            alpha=0.7,
+            zorder=1
+        )
+
+        ax.set_xlim(x_limits)
+        ax.set_ylim(y_limits)
+
+    # ============================================================
+    # Layout
+    # ============================================================
 
     plt.tight_layout(rect=[0, 0, 1, 0.95])
     plt.show()

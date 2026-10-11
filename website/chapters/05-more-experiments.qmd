@@ -40,28 +40,30 @@ The main quantities of interest are:
 </div>
 
 <div class="plot-panel">
-  <img id="cov-plot" src="../figures/chapter05/covariance_structure/bivariate/1_1.png" alt="Bivariate covariance plot">
+  <h3>Scaled Squared Error vs. $\widehat{R}_{\nu}-1$</h3>
+  <img
+    id="cov-plot"
+    src="../figures/chapter05/covariance_structure/bivariate/1_1.png"
+    alt="Bivariate covariance plot"
+  >
 </div>
 
-<script>
-document.querySelectorAll('.cov-btn').forEach(btn => {
-  btn.addEventListener('click', () => {
-    const stem = '../figures/chapter05/covariance_structure/bivariate/'
-               + btn.dataset.config.replace(/-/g, '_');
-    document.getElementById('cov-plot').src = stem + '.png';
+<div class="plot-panel">
+  <h3>Corresponding Level Sets</h3>
+  <img
+    id="levelset-plot"
+    src="../figures/chapter05/covariance_structure/bivariate/levelset1_1.png"
+    alt="Bivariate Gaussian level sets"
+  >
+</div>
 
-    document.querySelectorAll('.cov-btn').forEach(b => b.classList.remove('active'));
-    btn.classList.add('active');
-  });
-});
-</script>
 
 ### Varying Initialization Distribution
 
-*Use this tool to visualize how the target distribution and Initialzation distribution changes*
+*Use this tool to visualize how the target distribution and initialization distribution change.*
 
-The following visualization shows the 68% and 95% probability
-regions of two bivariate normal distributions.
+The following visualization shows the 68% and 95% probability regions of two bivariate normal distributions.
+
 
 <div id="bvn-experiment"></div>
 
@@ -74,6 +76,7 @@ regions of two bivariate normal distributions.
 
 ### Varying Covariance Structures
 
+
 <div class="button-row">
   <button class="tri-btn" data-config="10-10-1">$\sigma_1^2 = 10,\ \sigma_2^2 = 10,\ \sigma_3^2 = 1$</button>
   <button class="tri-btn" data-config="100-10-1">$\sigma_1^2 = 100,\ \sigma_2^2 = 10,\ \sigma_3^2 = 1$</button>
@@ -82,23 +85,17 @@ regions of two bivariate normal distributions.
 </div>
 
 <div class="plot-panel">
-  <img id="tri-plot" src="../figures/chapter05/covariance_structure/trivariate/10_10_1.png" alt="Trivariate covariance plot">
+  <img
+    id="tri-plot"
+    src="../figures/chapter05/covariance_structure/trivariate/10_10_1.png"
+    alt="Trivariate covariance plot"
+  >
 </div>
 
-<script>
-document.querySelectorAll('.tri-btn').forEach(btn => {
-  btn.addEventListener('click', () => {
-    const stem = '../figures/chapter05/covariance_structure/trivariate/'
-               + btn.dataset.config.replace(/-/g, '_');
-    document.getElementById('tri-plot').src = stem + '.png';
-
-    document.querySelectorAll('.tri-btn').forEach(b => b.classList.remove('active'));
-    btn.classList.add('active');
-  });
-});
-</script>
 
 ### Varying Initialization Distribution
+
+[Add explanation or visualization.]
 
 ## **3. 100-Dimensional MVN**
 
@@ -106,31 +103,79 @@ document.querySelectorAll('.tri-btn').forEach(btn => {
 
 ### Highlight Plots
 
+
 <div class="button-row">
   <button class="d100-btn" data-image="noTransform">Diagonal</button>
   <button class="d100-btn" data-image="withTransform">Transformed</button>
 </div>
 
 <div class="plot-panel">
-  <img id="d100-plot" src="../figures/chapter05/covariance_structure/d100/highlight_noTransform.png" alt="100-dimensional MVN highlight plot">
+  <img
+    id="d100-plot"
+    src="../figures/chapter05/covariance_structure/d100/highlight_noTransform.png"
+    alt="100-dimensional MVN highlight plot"
+  >
 </div>
 
-<script>
-const d100Files = {
-  noTransform:   '../figures/chapter05/covariance_structure/d100/highlight_noTransform.png',
-  withTransform: '../figures/chapter05/covariance_structure/d100/highlight_withTransform.png'
-};
-
-document.querySelectorAll('.d100-btn').forEach(btn => {
-  btn.addEventListener('click', () => {
-    document.getElementById('d100-plot').src = d100Files[btn.dataset.image];
-
-    document.querySelectorAll('.d100-btn').forEach(b => b.classList.remove('active'));
-    btn.classList.add('active');
-  });
-});
-</script>
 
 ## **What Are We Looking For?**
 
-We are looking for the connection between the MSE vs. $\widehat{R}_{\nu}$ on different distributions.
+We are looking for the connection between MSE and $\widehat{R}_{\nu}$ across different distributions.
+
+
+<script>
+function setupImageSwitcher(buttonSelector, onSelect) {
+  const buttons = document.querySelectorAll(buttonSelector);
+
+  buttons.forEach(btn => {
+    btn.addEventListener('click', () => {
+      onSelect(btn);
+
+      buttons.forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+    });
+  });
+
+  // Mark the first button active on initial page load.
+  if (buttons.length > 0) {
+    buttons[0].classList.add('active');
+  }
+}
+
+// 1. Bivariate covariance and level-set plots
+setupImageSwitcher('.cov-btn', btn => {
+  const [var1, var2] = btn.dataset.config.split('-');
+  const base =
+    '../figures/chapter05/covariance_structure/bivariate/';
+
+  document.getElementById('cov-plot').src =
+    `${base}${var1}_${var2}.png`;
+
+  document.getElementById('levelset-plot').src =
+    `${base}levelset${var1}_${var2}.png`;
+});
+
+// 2. Trivariate covariance plots
+setupImageSwitcher('.tri-btn', btn => {
+  const filename = btn.dataset.config.replace(/-/g, '_');
+  const base =
+    '../figures/chapter05/covariance_structure/trivariate/';
+
+  document.getElementById('tri-plot').src =
+    `${base}${filename}.png`;
+});
+
+// 3. 100-dimensional MVN highlight plots
+setupImageSwitcher('.d100-btn', btn => {
+  const base =
+    '../figures/chapter05/covariance_structure/d100/';
+
+  const filename = btn.dataset.image === 'noTransform'
+    ? 'highlight_noTransform.png'
+    : 'highlight_withTransform.png';
+
+  document.getElementById('d100-plot').src =
+    base + filename;
+});
+</script>
+
