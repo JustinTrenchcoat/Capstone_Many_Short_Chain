@@ -497,7 +497,7 @@ def MSE_vs_Rhat_8panel(
     plt.show()
 
 # Highlight special groups of dimensions  
-def plot_mse_vs_rhat_9(name, df, warmup, HighlightIdx1,
+def highlightPlots(name, df, warmup, HighlightIdx1,
                        HighlightIdx2, bound, threshold,
                        num_chains_short, num_super_chains):
     if len(warmup) != 9:
@@ -760,6 +760,267 @@ def plot_mse_vs_rhat_9(name, df, warmup, HighlightIdx1,
             alpha=0.3,
             markersize=8,
             label="Low variance"
+        ),
+        Line2D(
+            [0], [0],
+            color="black",
+            linestyle="--",
+            linewidth=1.2,
+            label="Empirical threshold"
+        ),
+        Line2D(
+            [0], [0],
+            color="purple",
+            linestyle=":",
+            linewidth=1.2,
+            label="F-derived boundaries"
+        ),
+        Line2D(
+            [0], [0],
+            color="grey",
+            linestyle="--",
+            linewidth=1.0,
+            label="MSE bounds"
+        ),
+        Line2D(
+            [0], [0],
+            color="black",
+            linestyle="-",
+            linewidth=1.0,
+            label=r"$1/N_{\mathrm{short}}$"
+        )
+    ]
+
+    fig.legend(
+        handles=legend_handles,
+        loc="center left",
+        bbox_to_anchor=(0.87, 0.5),
+        fontsize=10,
+        frameon=True
+    )
+
+    # ==============================================
+    # Figure layout and labels
+    # ==============================================
+
+    fig.subplots_adjust(
+        top=0.88,
+        bottom=0.10,
+        left=0.07,
+        right=0.85,
+        hspace=0.36,
+        wspace=0.20
+    )
+
+    fig.suptitle(
+        rf"{name}: MSE vs. $\widehat{{R}}_{{\nu}}-1$",
+        fontsize=20,
+        fontweight="bold"
+    )
+
+    fig.supxlabel(
+        r"$\widehat{R}_{\nu}-1$",
+        fontsize=16,
+        y=0.025
+    )
+
+    fig.supylabel(
+        "Scaled Squared Error",
+        fontsize=16,
+        x=0.02
+    )
+
+    fig.text(
+        0.02, 0.98,
+        f"K = {K}, M = {M:g}",
+        fontsize=13,
+        ha="left",
+        va="top"
+    )
+
+    plt.show()
+
+
+
+def plot_mse_vs_rhat_9(name, df, warmup, bound, threshold,
+                      num_chains_short, num_super_chains):
+
+    if len(warmup) != 9:
+        raise ValueError("warmup must contain exactly 9 values.")
+
+    # ==============================================
+    # K, M, and F-derived Rhat boundaries
+    # ==============================================
+
+    K = num_super_chains
+    M = num_chains_short / num_super_chains
+
+    if M <= 1 or K <= 1:
+        raise ValueError("K and M must both be greater than 1.")
+
+    df1 = K - 1
+    df2 = K * (M - 1)
+
+    f_low = f.ppf(0.05, df1, df2)
+    f_high = f.ppf(0.95, df1, df2)
+
+    rhat_low = np.sqrt(1 + f_low / M) - 1
+    rhat_high = np.sqrt(1 + f_high / M) - 1
+
+    # ==============================================
+    # Figure setup
+    # ==============================================
+
+    fig, axes = plt.subplots(
+        3, 3,
+        figsize=(22, 15),
+        dpi=300,
+        sharex=True,
+        sharey=True
+    )
+
+    axes = axes.flatten()
+
+    # ==============================================
+    # Plot each warmup
+    # ==============================================
+
+    for i, w in enumerate(warmup):
+
+        ax = axes[i]
+
+        df_warmup = df[
+            df["Warmup Length"] == w
+        ].copy()
+
+        if df_warmup.empty:
+            raise ValueError(
+                f"No data found for Warmup Length = {w}."
+            )
+
+        # ------------------------------------------
+        # Average Rhat
+        # ------------------------------------------
+
+        avg_rhat = df_warmup["Rhat"].mean()
+
+        # ------------------------------------------
+        # Scatterplot: all datapoints
+        # ------------------------------------------
+
+        ax.scatter(
+            df_warmup["Rhat"] - 1,
+            df_warmup["MSE"],
+            color="blue",
+            alpha=0.35,
+            s=25,
+            label="Datapoints"
+        )
+
+        # ------------------------------------------
+        # Reference lines: MSE bounds
+        # ------------------------------------------
+
+        ax.axhline(
+            bound[0],
+            color="grey",
+            linestyle="--",
+            linewidth=1.0,
+            alpha=0.7
+        )
+
+        ax.axhline(
+            bound[1],
+            color="grey",
+            linestyle="--",
+            linewidth=1.0,
+            alpha=0.7
+        )
+
+        # 1 / number of short chains
+
+        ax.axhline(
+            1 / num_chains_short,
+            color="black",
+            linewidth=1.0,
+            alpha=0.7
+        )
+
+        # ------------------------------------------
+        # Reference lines: Rhat
+        # ------------------------------------------
+
+        # Empirical threshold
+        ax.axvline(
+            threshold,
+            color="black",
+            linestyle="--",
+            linewidth=1.2,
+            alpha=0.8
+        )
+
+        # F-derived boundaries
+        ax.axvline(
+            rhat_low,
+            color="purple",
+            linestyle=":",
+            linewidth=1.2,
+            alpha=0.8
+        )
+
+        ax.axvline(
+            rhat_high,
+            color="purple",
+            linestyle=":",
+            linewidth=1.2,
+            alpha=0.8
+        )
+
+        # ------------------------------------------
+        # Axes
+        # ------------------------------------------
+
+        ax.set_xscale("log")
+        ax.set_yscale("log")
+
+        ax.tick_params(
+            axis="both",
+            which="both",
+            labelbottom=True,
+            labelleft=True,
+            labelsize=11
+        )
+
+        ax.grid(
+            which="major",
+            linestyle="--",
+            linewidth=0.5,
+            alpha=0.3
+        )
+
+        # ------------------------------------------
+        # Subplot title
+        # ------------------------------------------
+
+        ax.set_title(
+            f"W={w}, Avg Rhat: {avg_rhat:.4f}",
+            fontsize=10,
+            pad=8
+        )
+
+    # ==============================================
+    # Shared legend
+    # ==============================================
+
+    legend_handles = [
+        Line2D(
+            [0], [0],
+            marker="o",
+            color="blue",
+            linestyle="",
+            alpha=0.35,
+            markersize=7,
+            label="Datapoints"
         ),
         Line2D(
             [0], [0],
