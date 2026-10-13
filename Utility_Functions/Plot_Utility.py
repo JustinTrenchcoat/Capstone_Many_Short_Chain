@@ -842,11 +842,20 @@ def highlightPlots(name, df, warmup, HighlightIdx1,
 
 
 
-def plot_mse_vs_rhat_9(name, df, warmup, bound, threshold,
-                      num_chains_short, num_super_chains):
+
+def plot_mse_vs_rhat_9(
+    name, df, warmup, bound, threshold,
+    num_chains_short, num_super_chains,
+    color_by=False
+):
 
     if len(warmup) != 9:
         raise ValueError("warmup must contain exactly 9 values.")
+
+    if color_by not in (False, "Dimension", "Iteration"):
+        raise ValueError(
+            "color_by must be False, 'Dimension', or 'Iteration'."
+        )
 
     # ==============================================
     # K, M, and F-derived Rhat boundaries
@@ -882,6 +891,47 @@ def plot_mse_vs_rhat_9(name, df, warmup, bound, threshold,
     axes = axes.flatten()
 
     # ==============================================
+    # Optional continuous color scale
+    # ==============================================
+
+    if color_by is not False:
+
+        if color_by == "Dimension":
+            color_column = "Dimension"
+        else:
+            color_column = "Iteration"
+
+        if color_column not in df.columns:
+            raise ValueError(
+                f"Column '{color_column}' not found in df."
+            )
+
+        color_values = pd.to_numeric(
+            df[color_column], errors="coerce"
+        )
+
+        if color_values.notna().sum() == 0:
+            raise ValueError(
+                f"Column '{color_column}' contains no valid numeric values."
+            )
+
+        color_min = color_values.min()
+        color_max = color_values.max()
+
+        if color_min == color_max:
+            norm = plt.Normalize(
+                vmin=color_min - 0.5,
+                vmax=color_max + 0.5
+            )
+        else:
+            norm = plt.Normalize(
+                vmin=color_min,
+                vmax=color_max
+            )
+
+        cmap = plt.get_cmap("turbo")
+
+    # ==============================================
     # Plot each warmup
     # ==============================================
 
@@ -905,17 +955,33 @@ def plot_mse_vs_rhat_9(name, df, warmup, bound, threshold,
         avg_rhat = df_warmup["Rhat"].mean()
 
         # ------------------------------------------
-        # Scatterplot: all datapoints
+        # Scatterplot
         # ------------------------------------------
 
-        ax.scatter(
-            df_warmup["Rhat"] - 1,
-            df_warmup["MSE"],
-            color="blue",
-            alpha=0.35,
-            s=25,
-            label="Datapoints"
-        )
+        if color_by is False:
+
+            ax.scatter(
+                df_warmup["Rhat"] - 1,
+                df_warmup["MSE"],
+                color="blue",
+                alpha=0.35,
+                s=25
+            )
+
+        else:
+
+            ax.scatter(
+                df_warmup["Rhat"] - 1,
+                df_warmup["MSE"],
+                c=pd.to_numeric(
+                    df_warmup[color_column],
+                    errors="coerce"
+                ),
+                cmap=cmap,
+                norm=norm,
+                alpha=0.65,
+                s=25
+            )
 
         # ------------------------------------------
         # Reference lines: MSE bounds
@@ -950,7 +1016,6 @@ def plot_mse_vs_rhat_9(name, df, warmup, bound, threshold,
         # Reference lines: Rhat
         # ------------------------------------------
 
-        # Empirical threshold
         ax.axvline(
             threshold,
             color="black",
@@ -959,7 +1024,6 @@ def plot_mse_vs_rhat_9(name, df, warmup, bound, threshold,
             alpha=0.8
         )
 
-        # F-derived boundaries
         ax.axvline(
             rhat_low,
             color="purple",
@@ -1009,69 +1073,39 @@ def plot_mse_vs_rhat_9(name, df, warmup, bound, threshold,
         )
 
     # ==============================================
-    # Shared legend
-    # ==============================================
-
-    legend_handles = [
-        Line2D(
-            [0], [0],
-            marker="o",
-            color="blue",
-            linestyle="",
-            alpha=0.35,
-            markersize=7,
-            label="Datapoints"
-        ),
-        Line2D(
-            [0], [0],
-            color="black",
-            linestyle="--",
-            linewidth=1.2,
-            label="Empirical threshold"
-        ),
-        Line2D(
-            [0], [0],
-            color="purple",
-            linestyle=":",
-            linewidth=1.2,
-            label="F-derived boundaries"
-        ),
-        Line2D(
-            [0], [0],
-            color="grey",
-            linestyle="--",
-            linewidth=1.0,
-            label="MSE bounds"
-        ),
-        Line2D(
-            [0], [0],
-            color="black",
-            linestyle="-",
-            linewidth=1.0,
-            label=r"$1/N_{\mathrm{short}}$"
-        )
-    ]
-
-    fig.legend(
-        handles=legend_handles,
-        loc="center left",
-        bbox_to_anchor=(0.87, 0.5),
-        fontsize=10,
-        frameon=True
-    )
-
-    # ==============================================
-    # Figure layout and labels
+    # Figure layout
     # ==============================================
 
     fig.subplots_adjust(
         top=0.88,
         bottom=0.10,
         left=0.07,
-        right=0.85,
+        right=0.88 if color_by is not False else 0.95,
         hspace=0.36,
         wspace=0.20
     )
+
+    # ==============================================
+    # Optional shared colorbar
+    # ==============================================
+
+    if color_by is not False:
+
+        sm = plt.cm.ScalarMappable(
+            cmap=cmap,
+            norm=norm
+        )
+        sm.set_array([])
+
+        cbar_ax = fig.add_axes([0.90, 0.20, 0.015, 0.60])
+
+        cbar = fig.colorbar(sm, cax=cbar_ax)
+        cbar.set_label(color_by, fontsize=13)
+        cbar.ax.tick_params(labelsize=10)
+
+    # ==============================================
+    # Figure labels
+    # ==============================================
 
     fig.suptitle(
         rf"{name}: MSE vs. $\widehat{{R}}_{{\nu}}-1$",
