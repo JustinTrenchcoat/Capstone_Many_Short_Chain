@@ -30,7 +30,7 @@ $f^{(1mk)}_d \sim i.i.d N(\mu_d, \sigma^2_d)$
 
 for d being arbitrary dimension in the target distribution.
 
-From Central Limit Theorem, we have 
+We have 
 
 $\bar f^{(1 \cdot k)}_d \sim i.i.d N(\mu_d, \frac{\sigma^2_d}{M}), \bar f^{(\cdot \cdot \cdot)}_d \sim N(\mu_d, \frac{\sigma^2_d}{MK})$
 
@@ -50,7 +50,9 @@ $$
 
 And our $\widehat{R_{\nu}}_d =\sqrt{1+\frac{\widehat{B_{\nu}}_d} {\widehat{W_{\nu}}_d}}$, which means it is a function of a random variable following F distribution!
 
-This is under the assumption that our target distribution is multivariate normal, but what about other distributions? We plot the following histograms to visualize emperical distribution of nested rhat, or more precisely, the between-superchain and within-superchain variance ratio.
+This is under the assumption that our target distribution is multivariate normal, and the function of interest is $f(\theta) = \theta$.
+
+What about other distributions? We plot the following histograms to visualize emperical distribution of nested rhat, or more precisely, the between-superchain and within-superchain variance ratio.
 
 
 ## Plots
