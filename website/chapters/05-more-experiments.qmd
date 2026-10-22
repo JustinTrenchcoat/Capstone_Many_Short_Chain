@@ -26,37 +26,79 @@ The main quantities of interest are:
 
 ### Varying Covariance Structures
 
-<div class="button-row">
-  <button class="cov-btn" data-config="1-1">$\sigma_1^2 = 1,\ \sigma_2^2 = 1$</button>
-  <button class="cov-btn" data-config="10-1">$\sigma_1^2 = 10,\ \sigma_2^2 = 1$</button>
-  <button class="cov-btn" data-config="100-1">$\sigma_1^2 = 100,\ \sigma_2^2 = 1$</button>
-  <button class="cov-btn" data-config="1000-1">$\sigma_1^2 = 1000,\ \sigma_2^2 = 1$</button>
-  <button class="cov-btn" data-config="10-10">$\sigma_1^2 = 10,\ \sigma_2^2 = 10$</button>
-  <button class="cov-btn" data-config="100-10">$\sigma_1^2 = 100,\ \sigma_2^2 = 10$</button>
-  <button class="cov-btn" data-config="1000-10">$\sigma_1^2 = 1000,\ \sigma_2^2 = 10$</button>
-  <button class="cov-btn" data-config="100-100">$\sigma_1^2 = 100,\ \sigma_2^2 = 100$</button>
-  <button class="cov-btn" data-config="1000-100">$\sigma_1^2 = 1000,\ \sigma_2^2 = 100$</button>
-  <button class="cov-btn" data-config="1000-1000">$\sigma_1^2 = 1000,\ \sigma_2^2 = 1000$</button>
-</div>
+Choose a variance configuration to compare its MSE–$\widehat{R}_{\nu}$ relationship with the corresponding Gaussian contours.
 
-<div class="plot-panel">
-  <h3>Scaled Squared Error vs. $\widehat{R}_{\nu}-1$</h3>
-  <img
-    id="cov-plot"
-    src="../figures/chapter05/covariance_structure/bivariate/1_1.png"
-    alt="Bivariate covariance plot"
-  >
-</div>
+```{=html}
 
-<div class="plot-panel">
-  <h3>Corresponding Level Sets</h3>
-  <img
-    id="levelset-plot"
-    src="../figures/chapter05/covariance_structure/bivariate/levelset1_1.png"
-    alt="Bivariate Gaussian level sets"
-  >
-</div>
 
+<div class="covariance-explorer">
+
+  <div class="covariance-selector" role="group" aria-label="Choose target marginal variances">
+    <button class="cov-btn" type="button" data-config="1-1" aria-pressed="true">
+      <span class="cov-pair">σ<sub>1</sub><sup>2</sup> = 1, σ<sub>2</sub><sup>2</sup> = 1</span>
+      <span class="cov-caption">Equal variances</span>
+    </button>
+    <button class="cov-btn" type="button" data-config="10-1" aria-pressed="false">
+      <span class="cov-pair">σ<sub>1</sub><sup>2</sup> = 10, σ<sub>2</sub><sup>2</sup> = 1</span>
+      <span class="cov-caption">Mild anisotropy</span>
+    </button>
+    <button class="cov-btn" type="button" data-config="100-1" aria-pressed="false">
+      <span class="cov-pair">σ<sub>1</sub><sup>2</sup> = 100, σ<sub>2</sub><sup>2</sup> = 1</span>
+      <span class="cov-caption">Strong anisotropy</span>
+    </button>
+    <button class="cov-btn" type="button" data-config="1000-1" aria-pressed="false">
+      <span class="cov-pair">σ<sub>1</sub><sup>2</sup> = 1000, σ<sub>2</sub><sup>2</sup> = 1</span>
+      <span class="cov-caption">Extreme anisotropy</span>
+    </button>
+    <button class="cov-btn" type="button" data-config="10-10" aria-pressed="false">
+      <span class="cov-pair">σ<sub>1</sub><sup>2</sup> = 10, σ<sub>2</sub><sup>2</sup> = 10</span>
+      <span class="cov-caption">Equal variances</span>
+    </button>
+    <button class="cov-btn" type="button" data-config="100-10" aria-pressed="false">
+      <span class="cov-pair">σ<sub>1</sub><sup>2</sup> = 100, σ<sub>2</sub><sup>2</sup> = 10</span>
+      <span class="cov-caption">Anisotropic</span>
+    </button>
+    <button class="cov-btn" type="button" data-config="1000-10" aria-pressed="false">
+      <span class="cov-pair">σ<sub>1</sub><sup>2</sup> = 1000, σ<sub>2</sub><sup>2</sup> = 10</span>
+      <span class="cov-caption">Strong anisotropy</span>
+    </button>
+    <button class="cov-btn" type="button" data-config="100-100" aria-pressed="false">
+      <span class="cov-pair">σ<sub>1</sub><sup>2</sup> = 100, σ<sub>2</sub><sup>2</sup> = 100</span>
+      <span class="cov-caption">Equal variances</span>
+    </button>
+    <button class="cov-btn" type="button" data-config="1000-100" aria-pressed="false">
+      <span class="cov-pair">σ<sub>1</sub><sup>2</sup> = 1000, σ<sub>2</sub><sup>2</sup> = 100</span>
+      <span class="cov-caption">Anisotropic</span>
+    </button>
+    <button class="cov-btn" type="button" data-config="1000-1000" aria-pressed="false">
+      <span class="cov-pair">σ<sub>1</sub><sup>2</sup> = 1000, σ<sub>2</sub><sup>2</sup> = 1000</span>
+      <span class="cov-caption">Equal variances</span>
+    </button>
+  </div>
+
+  <div class="covariance-display">
+    <div class="covariance-display-header">
+      <h4 id="covariance-title">Target variances: 1 and 1</h4>
+      <span class="covariance-status" id="covariance-status" aria-live="polite">Configuration 1 of 10</span>
+    </div>
+    <div class="covariance-image-wrap">
+      <img
+        id="cov-plot"
+        src="../figures/chapter05/covariance_structure/bivariate/1_1.png"
+        alt="MSE versus nested R-hat scatterplots and Gaussian contours for target variances 1 and 1"
+        loading="eager"
+      >
+    </div>
+  </div>
+
+  <p class="covariance-help">
+    Each figure combines the MSE versus nested R-hat scatterplots for the correlation settings with the corresponding target and initialization-distribution contours.
+  </p>
+</div>
+```
+
+
+<!--
 
 ### Varying Initialization Distribution
 
@@ -64,13 +106,12 @@ The main quantities of interest are:
 
 The following visualization shows the 68% and 95% probability regions of two bivariate normal distributions.
 
-
 <div id="bvn-experiment"></div>
 
 <script>
   bvnVisualizer("bvn-experiment");
 </script>
-
+-->
 
 ## **2. Trivariate Normal**
 
@@ -131,8 +172,16 @@ function setupImageSwitcher(buttonSelector, onSelect) {
     btn.addEventListener('click', () => {
       onSelect(btn);
 
-      buttons.forEach(b => b.classList.remove('active'));
+      buttons.forEach(b => {
+        b.classList.remove('active');
+        if (b.hasAttribute('aria-pressed')) {
+          b.setAttribute('aria-pressed', 'false');
+        }
+      });
       btn.classList.add('active');
+      if (btn.hasAttribute('aria-pressed')) {
+        btn.setAttribute('aria-pressed', 'true');
+      }
     });
   });
 
@@ -142,17 +191,24 @@ function setupImageSwitcher(buttonSelector, onSelect) {
   }
 }
 
-// 1. Bivariate covariance and level-set plots
+// 1. Bivariate covariance plots (combined MSE-Rhat and contour figure)
 setupImageSwitcher('.cov-btn', btn => {
   const [var1, var2] = btn.dataset.config.split('-');
   const base =
     '../figures/chapter05/covariance_structure/bivariate/';
 
-  document.getElementById('cov-plot').src =
-    `${base}${var1}_${var2}.png`;
+  const plot = document.getElementById('cov-plot');
+  plot.src = `${base}${var1}_${var2}.png`;
+  plot.alt =
+    `MSE versus nested R-hat scatterplots and Gaussian contours for target variances ${var1} and ${var2}`;
 
-  document.getElementById('levelset-plot').src =
-    `${base}levelset${var1}_${var2}.png`;
+  document.getElementById('covariance-title').textContent =
+    `Target variances: ${var1} and ${var2}`;
+
+  const buttons = Array.from(document.querySelectorAll('.cov-btn'));
+  const index = buttons.indexOf(btn);
+  document.getElementById('covariance-status').textContent =
+    `Configuration ${index + 1} of ${buttons.length}`;
 });
 
 // 2. Trivariate covariance plots
@@ -178,4 +234,3 @@ setupImageSwitcher('.d100-btn', btn => {
     base + filename;
 });
 </script>
-
