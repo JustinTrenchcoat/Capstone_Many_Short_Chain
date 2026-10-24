@@ -98,20 +98,22 @@ Choose a variance configuration to compare its MSE–$\widehat{R}_{\nu}$ relatio
 ```
 
 
-<!--
+<!-- -->
 
-### Varying Initialization Distribution
+### Varying Target Distribution Rotation
 
-*Use this tool to visualize how the target distribution and initialization distribution change.*
+*Use this tool to visualize how the target distribution rotates.*
 
-The following visualization shows the 68% and 95% probability regions of two bivariate normal distributions.
+The following visualization shows the 68% and 95% probability regions of two bivariate normal distributions. 
+We hypothesize that the ratio between the overlap volume of target-proposal distribution 
+over the total volume of proposal distribution might contribute to how nested $\widehat{R}$ behaves across warmups.
 
 <div id="bvn-experiment"></div>
 
 <script>
   bvnVisualizer("bvn-experiment");
 </script>
--->
+
 
 ## **2. Trivariate Normal**
 
