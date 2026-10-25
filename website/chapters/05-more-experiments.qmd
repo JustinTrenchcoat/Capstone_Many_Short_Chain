@@ -29,8 +29,6 @@ The main quantities of interest are:
 Choose a variance configuration to compare its MSE–$\widehat{R}_{\nu}$ relationship with the corresponding Gaussian contours.
 
 ```{=html}
-
-
 <div class="covariance-explorer">
 
   <div class="covariance-selector" role="group" aria-label="Choose target marginal variances">
@@ -145,20 +143,80 @@ over the total volume of proposal distribution might contribute to how nested $\
 [Explanation]
 
 ### Highlight Plots
+```{=html}
+<div id="d100-experiment" class="d100-explorer">
 
+  <div class="d100-controls">
+    <div class="d100-control-header">
+      <label for="d100-w-slider">Warmup length, W</label>
+      <output id="d100-w-value" for="d100-w-slider">10</output>
+    </div>
 
-<div class="button-row">
-  <button class="d100-btn" data-image="noTransform">Diagonal</button>
-  <button class="d100-btn" data-image="withTransform">Transformed</button>
+    
+  <div class="d100-slider-wrap">
+    <input
+      id="d100-w-slider"
+      type="range"
+      min="0"
+      max="8"
+      step="1"
+      value="0"
+      aria-label="Select warmup length W"
+    />
+
+  <div class="d100-ticks" aria-hidden="true">
+    <div class="d100-tick"><span>10</span></div>
+    <div class="d100-tick"><span>20</span></div>
+    <div class="d100-tick"><span>30</span></div>
+    <div class="d100-tick"><span>40</span></div>
+    <div class="d100-tick"><span>50</span></div>
+    <div class="d100-tick"><span>100</span></div>
+    <div class="d100-tick"><span>200</span></div>
+    <div class="d100-tick"><span>500</span></div>
+    <div class="d100-tick"><span>1000</span></div>
+  </div>
 </div>
 
-<div class="plot-panel">
-  <img
-    id="d100-plot"
-    src="../figures/chapter05/covariance_structure/d100/highlight_noTransform.png"
-    alt="100-dimensional MVN highlight plot"
-  >
+
+  <div class="button-row d100-type-selector"
+       role="group" aria-label="Choose image type">
+
+    <button class="d100-btn active"
+            type="button"
+            data-image="diagonal"
+            aria-pressed="true">
+      Diagonal
+    </button>
+
+    <button class="d100-btn"
+            type="button"
+            data-image="transformed"
+            aria-pressed="false">
+      Transformed
+    </button>
+
+  </div>
+
+  <div class="plot-panel d100-plot-panel">
+    <div class="d100-plot-header">
+      <h4 id="d100-plot-title">Diagonal — W = 10</h4>
+      <span id="d100-plot-status" aria-live="polite">W = 10</span>
+    </div>
+
+    <img
+      id="d100-plot"
+      src="../figures/chapter05/covariance_structure/d100/highlight_D_W10.png"
+      alt="100-dimensional MVN diagonal plot at W = 10"
+    />
+  </div>
+
 </div>
+```
+```{=html}
+<script>
+  d100Visualizer("d100-experiment");
+</script>
+```
 
 
 ## **What Are We Looking For?**
@@ -221,18 +279,5 @@ setupImageSwitcher('.tri-btn', btn => {
 
   document.getElementById('tri-plot').src =
     `${base}${filename}.png`;
-});
-
-// 3. 100-dimensional MVN highlight plots
-setupImageSwitcher('.d100-btn', btn => {
-  const base =
-    '../figures/chapter05/covariance_structure/d100/';
-
-  const filename = btn.dataset.image === 'noTransform'
-    ? 'highlight_noTransform.png'
-    : 'highlight_withTransform.png';
-
-  document.getElementById('d100-plot').src =
-    base + filename;
 });
 </script>

@@ -53,3 +53,4 @@ format:
     include-in-header:
       - text: |
           <script src="../js/bivariate_normal.js"></script>
+          <script src="../js/d100_visualizer.js"></script>
