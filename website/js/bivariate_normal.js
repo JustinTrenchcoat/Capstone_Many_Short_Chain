@@ -37,6 +37,24 @@ function bvnVisualizer(containerId) {
 
           <div class="bvn-row">
             <label>
+              Mean X
+              <input id="${containerId}-m1x"
+                     type="number"
+                     value="0"
+                     step="0.1">
+            </label>
+
+            <label>
+              Mean Y
+              <input id="${containerId}-m1y"
+                     type="number"
+                     value="0"
+                     step="0.1">
+            </label>
+          </div>
+
+          <div class="bvn-row">
+            <label>
               Variance X (unrotated)
               <input id="${containerId}-v1x"
                      type="number"
@@ -67,7 +85,7 @@ function bvnVisualizer(containerId) {
           </label>
 
           <p class="bvn-note">
-            The target mean follows the proposal mean.
+            Target and initialization means are independent.
             Variances are specified before rotation.
           </p>
         </div>
@@ -113,15 +131,6 @@ function bvnVisualizer(containerId) {
             </label>
           </div>
 
-          <label>
-            Correlation ρ
-            <input id="${containerId}-r2"
-                   type="number"
-                   value="0.6"
-                   min="-0.99"
-                   max="0.99"
-                   step="0.05">
-          </label>
         </div>
       </div>
 
@@ -453,9 +462,9 @@ function bvnVisualizer(containerId) {
       );
 
     const d1 = {
-      // Target mean always equals initialization/proposal mean.
-      meanX: getValue("m2x"),
-      meanY: getValue("m2y"),
+      // Target mean is independently controlled.
+      meanX: getValue("m1x"),
+      meanY: getValue("m1y"),
 
       // Marginal variances AFTER rotation.
       varX: targetMarginalVarX,
@@ -469,7 +478,8 @@ function bvnVisualizer(containerId) {
     // Initialization / proposal distribution
     // --------------------------------------------------------
 
-    // These controls and their behavior are unchanged.
+    // The initialization distribution has independent mean controls.
+    // Its correlation is fixed at zero (independent coordinates).
 
     const d2 = {
       meanX: getValue("m2x"),
@@ -485,13 +495,7 @@ function bvnVisualizer(containerId) {
         getValue("v2y")
       ),
 
-      rho: Math.max(
-        -0.99,
-        Math.min(
-          0.99,
-          getValue("r2")
-        )
-      )
+      rho: 0
     };
 
     // --------------------------------------------------------
@@ -816,14 +820,15 @@ function bvnVisualizer(containerId) {
   // ----------------------------------------------------------
 
   const inputIds = [
+    "m1x",
+    "m1y",
     "v1x",
     "v1y",
     "angle",
     "m2x",
     "m2y",
     "v2x",
-    "v2y",
-    "r2"
+    "v2y"
   ];
 
   inputIds.forEach(id => {
