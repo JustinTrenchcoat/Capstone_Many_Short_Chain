@@ -15,6 +15,48 @@
   --plot-shadow: 0 4px 16px rgb(30 50 80 / 6%);
 }
 
+/* =========================================================
+   Extra. Eigen Experiment
+   ========================================================= */
+
+
+.experiment-selector {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 25px;
+  margin: 20px 0 30px 0;
+}
+
+.experiment-select {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  min-width: 200px;
+}
+
+.experiment-select select {
+  padding: 8px 12px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  font-size: 15px;
+  background-color: white;
+  cursor: pointer;
+}
+
+.experiment-plot {
+  margin-bottom: 35px;
+}
+
+.experiment-plot h4 {
+  margin-bottom: 12px;
+}
+
+.experiment-plot img {
+  display: block;
+  max-width: 100%;
+  height: auto;
+}
+
 
 /* =========================================================
    2. Shared button layout

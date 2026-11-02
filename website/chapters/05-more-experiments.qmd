@@ -112,6 +112,126 @@ over the total volume of proposal distribution might contribute to how nested $\
   bvnVisualizer("bvn-experiment");
 </script>
 
+### Experiment on the ratio of covariance matrix eigen values
+
+|              | Concentric       | Shifted          |
+|:-------------|:-----------------|:-----------------|
+| **Rate 1**   | Experiment 1     | Experiment 2     |
+| **Rate 2**   | Experiment 3     | Experiment 4     |
+
+|              | Concentric       | Shifted          |
+|:-------------|:-----------------|:-----------------|
+| **Rate 1**   | Experiment 5     | Experiment 6     |
+| **Rate 2**   | Experiment 7     | Experiment 8     |
+
+
+```{=html}
+<div id="experiment-selector" class="experiment-selector">
+
+  <div class="experiment-select">
+    <label for="experiment-1"><strong>First experiment:</strong></label>
+    <select id="experiment-1">
+      <option value="1">Experiment 1</option>
+      <option value="2">Experiment 2</option>
+      <option value="3">Experiment 3</option>
+      <option value="4">Experiment 4</option>
+      <option value="5">Experiment 5</option>
+      <option value="6">Experiment 6</option>
+      <option value="7">Experiment 7</option>
+      <option value="8">Experiment 8</option>
+    </select>
+  </div>
+
+  <div class="experiment-select">
+    <label for="experiment-2"><strong>Second experiment:</strong></label>
+    <select id="experiment-2">
+      <option value="1">Experiment 1</option>
+      <option value="2" selected>Experiment 2</option>
+      <option value="3">Experiment 3</option>
+      <option value="4">Experiment 4</option>
+      <option value="5">Experiment 5</option>
+      <option value="6">Experiment 6</option>
+      <option value="7">Experiment 7</option>
+      <option value="8">Experiment 8</option>
+    </select>
+  </div>
+
+</div>
+
+<div id="experiment-plots">
+
+  <div class="experiment-plot">
+    <h4 id="plot-title-1">Experiment 1</h4>
+    <img id="plot-1"
+         src="../figures/chapter05/covariance_structure/bivariate/experiment_1.png"
+         alt="Experiment 1 plot"
+         style="width:100%; height:auto;">
+  </div>
+
+  <div class="experiment-plot">
+    <h4 id="plot-title-2">Experiment 2</h4>
+    <img id="plot-2"
+         src="../figures/chapter05/covariance_structure/bivariate/experiment_2.png"
+         alt="Experiment 2 plot"
+         style="width:100%; height:auto;">
+  </div>
+
+</div>
+
+<script>
+
+document.addEventListener("DOMContentLoaded", function () {
+
+  const select1 = document.getElementById("experiment-1");
+  const select2 = document.getElementById("experiment-2");
+
+  const plot1 = document.getElementById("plot-1");
+  const plot2 = document.getElementById("plot-2");
+
+  const title1 = document.getElementById("plot-title-1");
+  const title2 = document.getElementById("plot-title-2");
+
+  const figurePath =
+    "../figures/chapter05/covariance_structure/bivariate/";
+
+  function updatePlots() {
+
+    const exp1 = select1.value;
+    const exp2 = select2.value;
+
+    // Update image sources
+    plot1.src = figurePath + "experiment_" + exp1 + ".png";
+    plot2.src = figurePath + "experiment_" + exp2 + ".png";
+
+    // Update titles
+    title1.textContent = "Experiment " + exp1;
+    title2.textContent = "Experiment " + exp2;
+
+    // Update alternative text
+    plot1.alt = "Experiment " + exp1 + " plot";
+    plot2.alt = "Experiment " + exp2 + " plot";
+
+    // Prevent selecting the same experiment twice
+    Array.from(select1.options).forEach(option => {
+      option.disabled = option.value === exp2;
+    });
+
+    Array.from(select2.options).forEach(option => {
+      option.disabled = option.value === exp1;
+    });
+  }
+
+  // Handle selection changes
+  select1.addEventListener("change", updatePlots);
+  select2.addEventListener("change", updatePlots);
+
+  // Initialize
+  updatePlots();
+
+});
+
+</script>
+```
 
 ## **2. Trivariate Normal**
 
