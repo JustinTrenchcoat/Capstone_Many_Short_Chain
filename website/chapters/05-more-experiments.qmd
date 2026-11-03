@@ -114,15 +114,26 @@ over the total volume of proposal distribution might contribute to how nested $\
 
 ### Experiment on the ratio of covariance matrix eigen values
 
-|              | Concentric       | Shifted          |
-|:-------------|:-----------------|:-----------------|
-| **Rate 1**   | Experiment 1     | Experiment 2     |
-| **Rate 2**   | Experiment 3     | Experiment 4     |
+This experiment investigates how the ratio of covariance eigenvalues and relative positioning of the target and proposal distributions affect MCMC sampling performance. 
+By replacing an isotropic target with diagonal targets whose eigenvalues are \((25,64)\) or \((20,80)\), 
+we introduce different degrees of anisotropy while preserving the determinant—and therefore the contour area—of the original isotropic target. 
+Each configuration is tested under two positional treatments: concentric and shifted relative to the proposal. 
+We then repeat the same set of treatments after halving the isotropic target's variance and the corresponding diagonal eigenvalues, allowing us to examine whether the effects of target geometry and positioning persist at a smaller overall scale. 
+These comparisons help isolate how anisotropy, target–proposal alignment, and target scale influence sampling performance.
 
-|              | Concentric       | Shifted          |
+First group:
+
+|  Eigen Ratio / Mean | Concentric ($\underline{\mu} = [2, 2]$) | Shifted  ($\underline{\mu} = [4.1, 1.3]$) |
 |:-------------|:-----------------|:-----------------|
-| **Rate 1**   | Experiment 5     | Experiment 6     |
-| **Rate 2**   | Experiment 7     | Experiment 8     |
+| **Rate 1(0.4)**   | Experiment 1     | Experiment 2     |
+| **Rate 2(0.25)**   | Experiment 3     | Experiment 4     |
+
+Second group:
+
+| Eigen Ratio / Mean | Concentric ($\underline{\mu} = [2, 2]$)| Shifted ($\underline{\mu} = [4.1, 1.3]$)|
+|:-------------|:-----------------|:-----------------|
+| **Rate 1 (0.4)**   | Experiment 5     | Experiment 6     |
+| **Rate 2 (0.25)**   | Experiment 7     | Experiment 8     |
 
 
 ```{=html}
