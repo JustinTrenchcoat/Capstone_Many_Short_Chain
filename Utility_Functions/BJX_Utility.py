@@ -34,7 +34,7 @@ def _reduce_variance_interval(x, axis=None, biased=True, keepdims=False):
     return jnp.var(x, axis=axis, ddof=ddof, keepdims=keepdims)
 
 
-def nested_rhat_constrained(result_state, num_super_chains,idx):
+def nested_rhat_constrained(result_state, num_super_chains):
      # since we use only N=1, W_k is reduced to 0
     num_sub_chains = result_state.shape[0] // num_super_chains
     num_dimensions = result_state.shape[1]
@@ -45,13 +45,11 @@ def nested_rhat_constrained(result_state, num_super_chains,idx):
     mean_subchain = jnp.mean(chain_states, axis=2)
 
     variance_chain = _reduce_variance_interval(chain_states, axis=2, biased=False)
-    # print(variance_chain.shape) # (1,16,2)
     W = jnp.mean(variance_chain, axis=1)
-    # print(f"W dim: {W.shape}") # (1,2)
     B = _reduce_variance_interval(mean_subchain, axis=1, biased=False) # variance of between super chain
 
-    r_hat = jnp.sqrt(1+B/W)[:,idx]
-    return r_hat
+    r_hat = jnp.sqrt(1+B/W)
+    return r_hat, B, W
 
 
 def mse_calculation(result, mean_benchmark,
@@ -80,15 +78,19 @@ def simulation(warmup_length,num_total_chains, num_super_chains,
         dims = samples.shape[1]
         result_mse, factored_sq_err = mse_calculation(samples,true_mean,true_var,result_mse)
 
+        rhat, B_nu, W_nu = nested_rhat_constrained(samples, num_super_chains)
+
         for dim in range(dims):
-            rhat = nested_rhat_constrained(samples, num_super_chains, dim)
             R_hat_list.append({
                 "Warmup Length": warmup_length,
                 "Iteration":sim,
                 "Dimension": dim,
-                "Rhat": rhat[-1],
-                "MSE":factored_sq_err[dim]})
-        del kernel, sample_keys, last_states, sample_states, info, samples
+                "Rhat": rhat[0,dim],
+                "MSE":factored_sq_err[dim],
+                "B_nu":B_nu[0,dim],
+                "W_nu":W_nu[0,dim]
+                })
+        del kernel, sample_keys, last_states, sample_states, info, samples, rhat, B_nu, W_nu
         gc.collect()
     mse_list = np.array(result_mse)
     mse_best = mse_list.min(axis=0)
@@ -100,6 +102,6 @@ def simulation(warmup_length,num_total_chains, num_super_chains,
         print(f"Naive initialization. Warmup Length: {warmup_length}; mean of MSE is: {avg_mse}")
     else:
         print(f"Constrained initialization. Warmup Length: {warmup_length}; mean of MSE is: {avg_mse}")
-    del result_mse
+    del result_mse, mse_list
     gc.collect()
     jax.clear_caches()
