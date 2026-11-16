@@ -31,11 +31,9 @@ def kernel_setup(warmup_length,dimension,
                     num_total_chains, num_super_chains,
                     initialize_fn, randomKey,
                     target_log_prob_fn,init_step_size):
-    # 20 in the Zhang et al. Temporary change to 5 when doing IRT or other model with large dimension.
-    if dimension >= 200:
-        num_path = 5
-    else:
-        num_path = 20
+    # 20 in the Zhang et al. 5 is suitable for IRT, so make it consistent across all distributions
+
+    num_path = 5
     # this would be done in two steps:
     # first step: let adaptation just return the initializatin positions:
     true_initial_position, warmup_key = initialization_setup(dimension, num_total_chains,
