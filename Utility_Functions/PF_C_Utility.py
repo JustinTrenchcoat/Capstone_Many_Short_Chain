@@ -32,8 +32,8 @@ def kernel_setup(warmup_length,dimension,
                     initialize_fn, randomKey,
                     target_log_prob_fn,init_step_size):
     # 20 in the Zhang et al. 5 is suitable for IRT, so make it consistent across all distributions
-
     num_path = 5
+
     # this would be done in two steps:
     # first step: let adaptation just return the initializatin positions:
     true_initial_position, warmup_key = initialization_setup(dimension, num_total_chains,
@@ -55,7 +55,6 @@ def kernel_setup(warmup_length,dimension,
     kernel = blackjax.dhmc(target_log_prob_fn, **warmup_parameters).step
     del warmup_parameters, optimizer,warmup
     gc.collect()
-
     return kernel, sample_keys, warmup_last_states
 
 
@@ -65,7 +64,7 @@ def _reduce_variance_interval(x, axis=None, biased=True, keepdims=False):
     return jnp.var(x, axis=axis, ddof=ddof, keepdims=keepdims)
 
 
-def nested_rhat_constrained(result_state, num_super_chains,idx):
+def nested_rhat_constrained(result_state, num_super_chains):
     # since we use only N=1, W_k is reduced to 0
     num_sub_chains = result_state.shape[0] // num_super_chains
     num_dimensions = result_state.shape[1]
@@ -81,8 +80,8 @@ def nested_rhat_constrained(result_state, num_super_chains,idx):
     # print(f"W dim: {W.shape}") # (1,2)
     B = _reduce_variance_interval(mean_subchain, axis=1, biased=False) # variance of between super chain
 
-    r_hat = jnp.sqrt(1+B/W)[:,idx]
-    return r_hat
+    r_hat = jnp.sqrt(1+B/W)
+    return r_hat, B, W
 
 def mse_calculation(result, mean_benchmark,
                     var_benchmark, mse_list):
@@ -109,16 +108,19 @@ def simulation(warmup_length,num_total_chains, num_super_chains,
         samples = sample_states.position
         # dims = samples.shape[1]
         result_mse, factored_sq_err = mse_calculation(samples,true_mean,true_var,result_mse)
+        rhat, B_nu, W_nu = nested_rhat_constrained(samples, num_super_chains)
 
         for dim in range(dimension):
-            rhat = nested_rhat_constrained(samples, num_super_chains, dim)
             R_hat_list.append({
                 "Warmup Length": warmup_length,
                 "Iteration":sim,
                 "Dimension": dim,
                 "Rhat": rhat[-1],
-                "MSE":factored_sq_err[dim]})
-        del kernel, sample_keys, last_states, sample_states, info, samples
+                "MSE":factored_sq_err[dim],
+                "B_nu":B_nu[0,dim],
+                "W_nu":W_nu[0,dim],
+                })
+        del kernel, sample_keys, last_states, sample_states, info, samples, B_nu, W_nu
         gc.collect()
     mse_list = np.array(result_mse)
     mse_best = mse_list.min(axis=0)
@@ -126,7 +128,7 @@ def simulation(warmup_length,num_total_chains, num_super_chains,
     avg_mse = mse_list.mean(axis=0)
     MSE_list.append({"Warmup Length": warmup_length,"Avg MSE": avg_mse,
                         "Best MSE": mse_best,"Worst MSE": mse_worst})
-    print(f"New Pathfinder Initialization. Warmup Length: {warmup_length}; mean of MSE is: {avg_mse}")
+    print(f"Pathfinder Constrained Initialization. Warmup Length: {warmup_length}; mean of MSE is: {avg_mse}")
 
     del result_mse
     gc.collect()
