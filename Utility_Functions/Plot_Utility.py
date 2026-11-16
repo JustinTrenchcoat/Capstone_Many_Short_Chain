@@ -1,5 +1,6 @@
 from scipy.stats import f
 import numpy as np
+import pandas as pd
 from matplotlib.lines import Line2D
 import matplotlib.pyplot as plt
 
@@ -608,6 +609,35 @@ def plot_single_iteration(
 ####################################
 # Enhanced Plotting Functions for comparing target distributions
 ####################################
+
+
+##################
+# Helper
+##################
+def loglog_correlation(df):
+    """
+    Pearson correlation between log(Rhat - 1) and log(MSE).
+    """
+    x = np.asarray(df["Rhat"], dtype=np.float64) - 1
+    y = np.asarray(df["MSE"], dtype=np.float64)
+
+    mask = (
+        np.isfinite(x)
+        & np.isfinite(y)
+        & (x > 0)
+        & (y > 0)
+    )
+
+    log_x = np.log(x[mask])
+    log_y = np.log(y[mask])
+
+    if len(log_x) < 2:
+        return np.nan
+
+    if np.std(log_x) == 0 or np.std(log_y) == 0:
+        return np.nan
+
+    return np.corrcoef(log_x, log_y)[0, 1]
 
 ##################
 # Multi-Scatterplots
