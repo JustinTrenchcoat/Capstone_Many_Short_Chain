@@ -345,7 +345,7 @@ def comparison_plot(params, name,
     axes[2].set_title(
         f"Constrained Many-Short-Chain, "
         f"K={super_chain}, M={sub_chain}, N=1, "
-        f"mean nested rhat={float(MSC_C_r):.4f}, "
+        rf"mean $\widehat{{R}}_{{\nu}}$ ={float(MSC_C_r):.4f}, "
         f"mean MSE={float(MSE_C_MSE):.4f}"
     )
 
@@ -374,7 +374,7 @@ def comparison_plot(params, name,
     axes[3].set_title(
         f"Naive Many-Short-Chain, "
         f"K={super_chain}, M={sub_chain}, N=1, "
-        f"mean nested rhat={float(MSC_N_r):.4f}, "
+        rf"mean $\widehat{{R}}_{{\nu}}$ ={float(MSC_N_r):.4f}, "
         f"mean MSE={float(MSE_N_MSE):.4f}"
     )
 
