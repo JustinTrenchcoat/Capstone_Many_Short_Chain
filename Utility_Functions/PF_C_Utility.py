@@ -27,31 +27,44 @@ def initialization_setup(dimension, num_total_chains,num_super_chains,
     jax.clear_caches()
     return true_initial_position, warmup_key
 
-def kernel_setup(warmup_length,dimension,
-                    num_total_chains, num_super_chains,
-                    initialize_fn, randomKey,
-                    target_log_prob_fn,init_step_size):
-    # 20 in the Zhang et al. 5 is suitable for IRT, so make it consistent across all distributions
-    num_path = 5
+def generate_initializations(
+        dimension, num_total_chains, num_super_chains,
+        target_log_prob_fn, initialize_fn, randomKeys,
+        init_step_size, num_path):
+    initializations = []
+    warmup_keys = []
 
-    # this would be done in two steps:
-    # first step: let adaptation just return the initializatin positions:
-    true_initial_position, warmup_key = initialization_setup(dimension, num_total_chains,
-                                                             num_super_chains,target_log_prob_fn,
-                                                             initialize_fn,randomKey,init_step_size, num_path)
+    for sim in range(len(randomKeys)):
+        initial_position, warmup_key = initialization_setup(dimension, num_total_chains,
+                                                            num_super_chains,target_log_prob_fn,
+                                                            initialize_fn,randomKeys[sim],
+                                                            init_step_size,num_path)
+        initializations.append(initial_position)
+        warmup_keys.append(warmup_key)
+    return initializations, warmup_keys
+
+def kernel_setup(warmup_length, num_total_chains,
+                 initial_position, warmup_key,
+                 target_log_prob_fn,init_step_size):
+
     warmup = blackjax.chees_adaptation(
-        target_log_prob_fn,num_chains=num_total_chains,
+        target_log_prob_fn, num_chains=num_total_chains,
         target_acceptance_rate=0.75)
+    
     optimizer = optax.adam(learning_rate=0.001)
+
     key_warmup, key_sample = random.split(warmup_key)
+
     (warmup_last_states, warmup_parameters), _= warmup.run(
         key_warmup,
-        true_initial_position,
+        initial_position,
         init_step_size,
         optimizer,
         warmup_length
         )
+    
     sample_keys = random.split(key_sample, num_total_chains)
+
     kernel = blackjax.dhmc(target_log_prob_fn, **warmup_parameters).step
     del warmup_parameters, optimizer,warmup
     gc.collect()
@@ -94,16 +107,16 @@ def mse_calculation(result, mean_benchmark,
     return mse_list, factored_sq_err
 
 def simulation(warmup_length,num_total_chains, num_super_chains,
-               initialize_fn, randomKeys,dimension,
+               initializations, warmup_keys, dimension,
                target_log_prob_fn,init_step_size,
                repitition,R_hat_list,MSE_list,
                true_mean,true_var):
     result_mse = []
     for sim in range(repitition):
-        kernel, sample_keys, last_states = kernel_setup(warmup_length,dimension,
-                                                        num_total_chains, num_super_chains,
-                                                        initialize_fn, randomKeys[sim],
+        kernel, sample_keys, last_states = kernel_setup(warmup_length,num_total_chains,
+                                                        initializations[sim], warmup_keys[sim],
                                                         target_log_prob_fn,init_step_size)
+        
         sample_states, info = jax.vmap(kernel)(sample_keys, last_states)
         samples = sample_states.position
         # dims = samples.shape[1]
