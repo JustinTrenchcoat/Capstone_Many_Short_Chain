@@ -38,7 +38,7 @@ title: "3. Moving Beyond"
 ![](../figures/chapter03/Enhance_IRT_W.png)
 :::
 BlackJAX implementation returned good performance that is compatible to the original TFP implementation. And PathFinder, for some models, performed well. What is really interesting is that even with 
-the constrained scheme, Pathfinder method returns results similar to the naive initialization, where the transition in Scaled Squared Error is not accompanied with transition in $$\widehat{R}_{\nu}$$.
+the constrained scheme, Pathfinder method returns results similar to the naive initialization (with Rosenbrock distribution as an exception), where the transition in Scaled Squared Error is not accompanied with transition in $\widehat{R}_{\nu}$.
 Furthermore, the naive initialization from Pathfinder method returned results where even after a long warmup, the samples remained high scaled squared error.
 
 ## The Next Question
