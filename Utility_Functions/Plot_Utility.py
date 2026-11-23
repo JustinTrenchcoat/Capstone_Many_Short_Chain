@@ -318,13 +318,16 @@ def MSE_vs_Rhat_color(dfs, titles, supertitle, bound,
 
 def plot_iterations(df1, df2, metric="Rhat", threshold=None,
                     bound=None, df1_name="DataFrame 1", df2_name="DataFrame 2",
-                    title=None, title_prefix=None, show_df="both"):
+                    title=None, title_prefix=None, show_df="both",
+                    simplify=False, random_state=0):
     """
     Plot a selected metric across warmup lengths for 10 iterations.
 
     Color distinguishes dimensions; line style distinguishes DataFrames.
 
-    show_df accepts "df1", "df2" and "both"
+    show_df accepts "df1", "df2", or "both".
+
+    If simplify=True, randomly selects 10 dimensions to plot.
     """
 
     valid_metrics = ["Rhat", "MSE", "B_nu", "W_nu"]
@@ -356,6 +359,17 @@ def plot_iterations(df1, df2, metric="Rhat", threshold=None,
         set(df1["Dimension"].unique()) |
         set(df2["Dimension"].unique())
     )
+
+    # Randomly select 10 dimensions if simplify=True
+    if simplify:
+        rng = np.random.default_rng(random_state)
+        dimensions = sorted(
+            rng.choice(
+                dimensions,
+                size=min(10, len(dimensions)),
+                replace=False
+            )
+        )
 
     colors = plt.cm.tab20(np.linspace(0, 1, len(dimensions)))
     dimension_colors = dict(zip(dimensions, colors))
@@ -455,7 +469,6 @@ def plot_iterations(df1, df2, metric="Rhat", threshold=None,
     plt.tight_layout()
     plt.show()
 
-
 ##################
 # Single Iteration
 ##################
@@ -470,7 +483,9 @@ def plot_single_iteration(
     df2_name="DataFrame 2",
     title=None,
     title_prefix=None,
-    show_df="both"
+    show_df="both",
+    simplify=False,
+    random_state=0
 ):
     """
     Plot a selected metric across warmup lengths for one iteration.
@@ -483,6 +498,10 @@ def plot_single_iteration(
         The iteration to plot.
     show_df : str
         'df1', 'df2', or 'both'.
+    simplify : bool
+        If True, randomly select 10 dimensions to plot.
+    random_state : int
+        Random seed for selecting dimensions when simplify=True.
     """
 
     valid_metrics = ["Rhat", "MSE", "B_nu", "W_nu"]
@@ -514,6 +533,17 @@ def plot_single_iteration(
         set(df1["Dimension"].unique()) |
         set(df2["Dimension"].unique())
     )
+
+    # Randomly select 10 dimensions if simplify=True
+    if simplify:
+        rng = np.random.default_rng(random_state)
+        dimensions = sorted(
+            rng.choice(
+                dimensions,
+                size=min(10, len(dimensions)),
+                replace=False
+            )
+        )
 
     colors = plt.cm.tab20(np.linspace(0, 1, len(dimensions)))
     dimension_colors = dict(zip(dimensions, colors))
@@ -604,7 +634,6 @@ def plot_single_iteration(
 
     plt.tight_layout()
     plt.show()
-
 
 ####################################
 # Enhanced Plotting Functions for comparing target distributions
