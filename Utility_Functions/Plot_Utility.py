@@ -309,25 +309,45 @@ def MSE_vs_Rhat_color(dfs, titles, supertitle, bound,
 
 
 ####################################
-# Diagnostic visualizations
+# Diagnostic visualizations for rhat, B_nu, W_nu and MSE
 ####################################
 
 ##################
 # Multi-LinePlots
 ##################
-
-def plot_iterations(df1, df2, metric="Rhat", threshold=None,
-                    bound=None, df1_name="DataFrame 1", df2_name="DataFrame 2",
-                    title=None, title_prefix=None, show_df="both",
-                    simplify=False, random_state=0):
+def plot_iterations(
+    dfs,
+    metric="Rhat",
+    threshold=None,
+    bound=None,
+    df_names=None,
+    title=None,
+    title_prefix=None,
+    show_df="all",
+    random_state=0
+):
     """
     Plot a selected metric across warmup lengths for 10 iterations.
 
     Color distinguishes dimensions; line style distinguishes DataFrames.
 
-    show_df accepts "df1", "df2", or "both".
-
-    If simplify=True, randomly selects 10 dimensions to plot.
+    Parameters
+    ----------
+    dfs : list of pandas.DataFrame
+        List of DataFrames to compare.
+    metric : str
+        Metric to plot.
+    show_df : str or int
+        'all' to plot all DataFrames, or an integer to plot the
+        i-th DataFrame (0-indexed).
+    df_names : list of str, optional
+        Names of the DataFrames for the legend.
+    threshold : float, optional
+        Reference line for Rhat.
+    bound : tuple, optional
+        Lower and upper reference bounds for MSE.
+    random_state : int
+        Random seed for selecting dimensions when there are more than 5.
     """
 
     valid_metrics = ["Rhat", "MSE", "B_nu", "W_nu"]
@@ -338,42 +358,57 @@ def plot_iterations(df1, df2, metric="Rhat", threshold=None,
     if metric == "MSE" and bound is not None and len(bound) != 2:
         raise ValueError("bound must contain exactly two values.")
 
-    all_dfs = {
-        "df1": (df1_name, df1, "-"),
-        "df2": (df2_name, df2, "--")
-    }
+    if not isinstance(dfs, (list, tuple)) or len(dfs) == 0:
+        raise ValueError("dfs must be a non-empty list or tuple of DataFrames.")
 
-    if show_df not in ["df1", "df2", "both"]:
-        raise ValueError("show_df must be 'df1', 'df2', or 'both'")
+    # Default DataFrame names
+    if df_names is None:
+        df_names = [f"DataFrame {i+1}" for i in range(len(dfs))]
 
-    selected_dfs = (
-        ["df1", "df2"] if show_df == "both" else [show_df]
-    )
+    if len(df_names) != len(dfs):
+        raise ValueError("df_names must have the same length as dfs.")
 
-    dfs = {
-        all_dfs[key][0]: (all_dfs[key][1], all_dfs[key][2])
-        for key in selected_dfs
-    }
-
-    dimensions = sorted(
-        set(df1["Dimension"].unique()) |
-        set(df2["Dimension"].unique())
-    )
-
-    # Randomly select 10 dimensions if simplify=True
-    if simplify:
-        rng = np.random.default_rng(random_state)
-        dimensions = sorted(
-            rng.choice(
-                dimensions,
-                size=min(10, len(dimensions)),
-                replace=False
-            )
+    # Select DataFrames to plot
+    if show_df == "all":
+        selected_indices = list(range(len(dfs)))
+    elif isinstance(show_df, int) and 0 <= show_df < len(dfs):
+        selected_indices = [show_df]
+    else:
+        raise ValueError(
+            "show_df must be 'all' or a valid integer index of dfs."
         )
 
-    colors = plt.cm.tab20(np.linspace(0, 1, len(dimensions)))
+    selected_dfs = [
+        (df_names[i], dfs[i])
+        for i in selected_indices
+    ]
+
+    # Collect dimensions across selected DataFrames
+    dimensions = sorted(
+        set().union(
+            *[set(data["Dimension"].unique()) for _, data in selected_dfs]
+        )
+    )
+
+    # Randomly select 5 dimensions if there are more than 5
+    if len(dimensions) > 5:
+        rng = np.random.default_rng(random_state)
+        dimensions = sorted(
+            rng.choice(dimensions, size=5, replace=False)
+        )
+
+    # Assign colors to dimensions
+    colors = plt.cm.tab10(np.linspace(0, 1, len(dimensions)))
     dimension_colors = dict(zip(dimensions, colors))
 
+    # Assign line styles to DataFrames
+    linestyles = ["-", "--", "-.", ":"]
+    df_linestyles = {
+        selected_dfs[i][0]: linestyles[i % len(linestyles)]
+        for i in range(len(selected_dfs))
+    }
+
+    # Create 2x5 subplot grid for 10 iterations
     fig, axes = plt.subplots(
         2, 5, figsize=(22, 10), dpi=300, sharex=False
     )
@@ -382,7 +417,7 @@ def plot_iterations(df1, df2, metric="Rhat", threshold=None,
     for iteration in range(10):
         ax = axes[iteration]
 
-        for df_name, (data, linestyle) in dfs.items():
+        for df_name, data in selected_dfs:
             subset = data[data["Iteration"] == iteration]
 
             for dimension in dimensions:
@@ -397,10 +432,9 @@ def plot_iterations(df1, df2, metric="Rhat", threshold=None,
                     dim_data["Warmup Length"],
                     dim_data[metric],
                     color=dimension_colors[dimension],
-                    linestyle=linestyle,
+                    linestyle=df_linestyles[df_name],
                     marker="o",
-                    markersize=3,
-                    label=f"{df_name}, Dim {dimension}"
+                    markersize=3
                 )
 
         # Reference lines
@@ -409,8 +443,7 @@ def plot_iterations(df1, df2, metric="Rhat", threshold=None,
                 y=threshold,
                 color="black",
                 linestyle=":",
-                linewidth=1.5,
-                label="Threshold"
+                linewidth=1.5
             )
 
         elif metric == "MSE" and bound is not None:
@@ -420,16 +453,14 @@ def plot_iterations(df1, df2, metric="Rhat", threshold=None,
                 y=lowerbound,
                 color="black",
                 linestyle=":",
-                linewidth=1.5,
-                label="Lower bound"
+                linewidth=1.5
             )
 
             ax.axhline(
                 y=upperbound,
                 color="black",
                 linestyle=":",
-                linewidth=1.5,
-                label="Upper bound"
+                linewidth=1.5
             )
 
         ax.set_title(f"Iteration {iteration}")
@@ -439,24 +470,56 @@ def plot_iterations(df1, df2, metric="Rhat", threshold=None,
         ax.set_xscale("log")
         ax.grid(True, alpha=0.3)
 
-    # Shared legend
-    handles, labels = axes[0].get_legend_handles_labels()
+        # Shared dimension legend (colors) -- first row
+    dimension_handles = [
+        plt.Line2D(
+            [0], [0],
+            color=dimension_colors[dimension],
+            linestyle="-",
+            label=f"Dim {dimension}"
+        )
+        for dimension in dimensions
+    ]
 
+    # Shared DataFrame legend (linestyles) -- second row
+    df_handles = [
+        plt.Line2D(
+            [0], [0],
+            color="black",
+            linestyle=df_linestyles[df_name],
+            label=df_name
+        )
+        for df_name, _ in selected_dfs
+    ]
+
+    # First legend row: dimensions
     fig.legend(
-        handles, labels,
+        handles=dimension_handles,
+        title="Dimension",
         loc="upper center",
-        ncol=5,
-        bbox_to_anchor=(0.5, 1.02),
-        fontsize=9
+        ncol=min(len(dimensions), 5),
+        bbox_to_anchor=(0.5, 1.08),
+        fontsize=10,
+        frameon=True
+    )
+
+    # Second legend row: DataFrames
+    fig.legend(
+        handles=df_handles,
+        title="DataFrame",
+        loc="upper center",
+        ncol=min(len(selected_dfs), 4),
+        bbox_to_anchor=(0.5, 1.01),
+        fontsize=10,
+        frameon=True
     )
 
     # Construct supertitle
     main_title = title if title is not None else f"{metric} vs. Warmup Length"
 
     title_suffix = (
-        "Comparison" if show_df == "both"
-        else df1_name if show_df == "df1"
-        else df2_name
+        "Comparison" if show_df == "all"
+        else df_names[show_df]
     )
 
     full_title = " ".join(
@@ -464,27 +527,24 @@ def plot_iterations(df1, df2, metric="Rhat", threshold=None,
         if part
     )
 
-    fig.suptitle(full_title, fontsize=16, y=1.12)
+    fig.suptitle(full_title, fontsize=16, y=1.16)
 
-    plt.tight_layout()
+    plt.tight_layout(rect=[0, 0, 1, 0.92])
     plt.show()
-
 ##################
 # Single Iteration
 ##################
 
 def plot_single_iteration(
-    df1, df2,
+    dfs,
     iteration=0,
     metric="Rhat",
     threshold=None,
     bound=None,
-    df1_name="DataFrame 1",
-    df2_name="DataFrame 2",
+    df_names=None,
     title=None,
     title_prefix=None,
-    show_df="both",
-    simplify=False,
+    show_df="all",
     random_state=0
 ):
     """
@@ -494,14 +554,21 @@ def plot_single_iteration(
 
     Parameters
     ----------
+    dfs : list of pandas.DataFrame
+        List of DataFrames to compare.
     iteration : int
         The iteration to plot.
-    show_df : str
-        'df1', 'df2', or 'both'.
-    simplify : bool
-        If True, randomly select 10 dimensions to plot.
+    show_df : str or int
+        'all' to plot all DataFrames, or an integer to plot the
+        i-th DataFrame (0-indexed).
+    df_names : list of str, optional
+        Names of the DataFrames for the legend.
+    threshold : float, optional
+        Reference line for Rhat.
+    bound : tuple, optional
+        Lower and upper reference bounds for MSE.
     random_state : int
-        Random seed for selecting dimensions when simplify=True.
+        Random seed for selecting dimensions when there are more than 5.
     """
 
     valid_metrics = ["Rhat", "MSE", "B_nu", "W_nu"]
@@ -512,46 +579,60 @@ def plot_single_iteration(
     if metric == "MSE" and bound is not None and len(bound) != 2:
         raise ValueError("bound must contain exactly two values.")
 
-    all_dfs = {
-        "df1": (df1_name, df1, "-"),
-        "df2": (df2_name, df2, "--")
-    }
+    if not isinstance(dfs, (list, tuple)) or len(dfs) == 0:
+        raise ValueError("dfs must be a non-empty list or tuple of DataFrames.")
 
-    if show_df not in ["df1", "df2", "both"]:
-        raise ValueError("show_df must be 'df1', 'df2', or 'both'")
+    # Default DataFrame names
+    if df_names is None:
+        df_names = [f"DataFrame {i+1}" for i in range(len(dfs))]
 
-    selected_dfs = (
-        ["df1", "df2"] if show_df == "both" else [show_df]
-    )
+    if len(df_names) != len(dfs):
+        raise ValueError("df_names must have the same length as dfs.")
 
-    dfs = {
-        all_dfs[key][0]: (all_dfs[key][1], all_dfs[key][2])
-        for key in selected_dfs
-    }
-
-    dimensions = sorted(
-        set(df1["Dimension"].unique()) |
-        set(df2["Dimension"].unique())
-    )
-
-    # Randomly select 10 dimensions if simplify=True
-    if simplify:
-        rng = np.random.default_rng(random_state)
-        dimensions = sorted(
-            rng.choice(
-                dimensions,
-                size=min(10, len(dimensions)),
-                replace=False
-            )
+    # Select DataFrames to plot
+    if show_df == "all":
+        selected_indices = list(range(len(dfs)))
+    elif isinstance(show_df, int) and 0 <= show_df < len(dfs):
+        selected_indices = [show_df]
+    else:
+        raise ValueError(
+            "show_df must be 'all' or a valid integer index of dfs."
         )
 
-    colors = plt.cm.tab20(np.linspace(0, 1, len(dimensions)))
+    selected_dfs = [
+        (df_names[i], dfs[i])
+        for i in selected_indices
+    ]
+
+    # Collect dimensions across selected DataFrames
+    dimensions = sorted(
+        set().union(
+            *[set(data["Dimension"].unique()) for _, data in selected_dfs]
+        )
+    )
+
+    # Randomly select 5 dimensions if there are more than 5
+    if len(dimensions) > 5:
+        rng = np.random.default_rng(random_state)
+        dimensions = sorted(
+            rng.choice(dimensions, size=5, replace=False)
+        )
+
+    # Assign colors to dimensions
+    colors = plt.cm.tab10(np.linspace(0, 1, len(dimensions)))
     dimension_colors = dict(zip(dimensions, colors))
+
+    # Assign line styles to DataFrames
+    linestyles = ["-", "--", "-.", ":"]
+    df_linestyles = {
+        selected_dfs[i][0]: linestyles[i % len(linestyles)]
+        for i in range(len(selected_dfs))
+    }
 
     # Single subplot
     fig, ax = plt.subplots(figsize=(11, 7), dpi=300)
 
-    for df_name, (data, linestyle) in dfs.items():
+    for df_name, data in selected_dfs:
         subset = data[data["Iteration"] == iteration]
 
         for dimension in dimensions:
@@ -566,10 +647,9 @@ def plot_single_iteration(
                 dim_data["Warmup Length"],
                 dim_data[metric],
                 color=dimension_colors[dimension],
-                linestyle=linestyle,
+                linestyle=df_linestyles[df_name],
                 marker="o",
-                markersize=3,
-                label=f"{df_name}, Dim {dimension}"
+                markersize=3
             )
 
     # Reference lines
@@ -578,8 +658,7 @@ def plot_single_iteration(
             y=threshold,
             color="black",
             linestyle=":",
-            linewidth=1.5,
-            label="Threshold"
+            linewidth=1.5
         )
 
     elif metric == "MSE" and bound is not None:
@@ -589,16 +668,14 @@ def plot_single_iteration(
             y=lowerbound,
             color="black",
             linestyle=":",
-            linewidth=1.5,
-            label="Lower bound"
+            linewidth=1.5
         )
 
         ax.axhline(
             y=upperbound,
             color="black",
             linestyle=":",
-            linewidth=1.5,
-            label="Upper bound"
+            linewidth=1.5
         )
 
     ax.set_title(f"Iteration {iteration}")
@@ -609,9 +686,43 @@ def plot_single_iteration(
     ax.tick_params(axis="both", labelsize=14)
     ax.grid(True, alpha=0.3)
 
-    # Legend
+    # Dimension legend (colors)
+    dimension_handles = [
+        plt.Line2D(
+            [0], [0],
+            color=dimension_colors[dimension],
+            linestyle="-",
+            label=f"Dim {dimension}"
+        )
+        for dimension in dimensions
+    ]
+
+    # DataFrame legend (linestyles)
+    df_handles = [
+        plt.Line2D(
+            [0], [0],
+            color="black",
+            linestyle=df_linestyles[df_name],
+            label=df_name
+        )
+        for df_name, _ in selected_dfs
+    ]
+
+    # Combine legends
+    legend1 = ax.legend(
+        handles=dimension_handles,
+        title="Dimension",
+        loc="upper left",
+        fontsize=10,
+        frameon=True
+    )
+
+    ax.add_artist(legend1)
+
     ax.legend(
-        loc="best",
+        handles=df_handles,
+        title="DataFrame",
+        loc="upper right",
         fontsize=10,
         frameon=True
     )
@@ -620,9 +731,8 @@ def plot_single_iteration(
     main_title = title if title is not None else f"{metric} vs. Warmup Length"
 
     title_suffix = (
-        "Comparison" if show_df == "both"
-        else df1_name if show_df == "df1"
-        else df2_name
+        "Comparison" if show_df == "all"
+        else df_names[show_df]
     )
 
     full_title = " ".join(
@@ -1482,3 +1592,14 @@ def highlightPlots(
     )
 
     plt.show()
+
+# for sd in set_of_sd:
+def df_setup(set_of_dir, set_of_labels):
+  def read_one_df(save_dir, label):
+    R_Hat_path = f"{save_dir}/{label}.pkl"
+    R_Hat_df = pd.read_pickle(R_Hat_path)
+    return R_Hat_df
+  dfs = []
+  for (save_dir, label) in zip(set_of_dir, set_of_labels):
+    dfs.append(read_one_df(save_dir, label))
+  return dfs
