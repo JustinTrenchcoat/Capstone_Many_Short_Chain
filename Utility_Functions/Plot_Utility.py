@@ -324,7 +324,8 @@ def plot_iterations(
     title=None,
     title_prefix=None,
     show_df="all",
-    random_state=0
+    random_state=0,
+    avg=False
 ):
     """
     Plot a selected metric across warmup lengths for 10 iterations.
@@ -390,8 +391,8 @@ def plot_iterations(
         )
     )
 
-    # Randomly select 5 dimensions if there are more than 5
-    if len(dimensions) > 5:
+        # Randomly select 5 dimensions if avg=False
+    if not avg and len(dimensions) > 5:
         rng = np.random.default_rng(random_state)
         dimensions = sorted(
             rng.choice(dimensions, size=5, replace=False)
@@ -420,22 +421,35 @@ def plot_iterations(
         for df_name, data in selected_dfs:
             subset = data[data["Iteration"] == iteration]
 
-            for dimension in dimensions:
-                dim_data = subset[
-                    subset["Dimension"] == dimension
-                ].sort_values("Warmup Length")
+            if avg:
+                avg_data = (subset.groupby("Warmup Length")[metric].mean().reset_index().sort_values("Warmup Length"))
+                if not avg_data.empty:
+                    ax.plot(
+                        avg_data["Warmup Length"],
+                        avg_data[metric],
+                        linestyle=df_linestyles[df_name],
+                        marker="o",
+                        markersize=3,
+                        label=df_name
+                    )
 
-                if dim_data.empty:
-                    continue
+            else:
+                for dimension in dimensions:
+                    dim_data = subset[
+                        subset["Dimension"] == dimension
+                    ].sort_values("Warmup Length")
 
-                ax.plot(
-                    dim_data["Warmup Length"],
-                    dim_data[metric],
-                    color=dimension_colors[dimension],
-                    linestyle=df_linestyles[df_name],
-                    marker="o",
-                    markersize=3
-                )
+                    if dim_data.empty:
+                        continue
+
+                    ax.plot(
+                        dim_data["Warmup Length"],
+                        dim_data[metric],
+                        color=dimension_colors[dimension],
+                        linestyle=df_linestyles[df_name],
+                        marker="o",
+                        markersize=3
+                    )
 
         # Reference lines
         if metric == "Rhat" and threshold is not None:
@@ -471,17 +485,29 @@ def plot_iterations(
         ax.grid(True, alpha=0.3)
 
         # Shared dimension legend (colors) -- first row
-    dimension_handles = [
-        plt.Line2D(
-            [0], [0],
-            color=dimension_colors[dimension],
-            linestyle="-",
-            label=f"Dim {dimension}"
-        )
-        for dimension in dimensions
-    ]
+    if not avg:
+        # Shared dimension legend (colors)
+        dimension_handles = [
+            plt.Line2D(
+                [0], [0],
+                color=dimension_colors[dimension],
+                linestyle="-",
+                label=f"Dim {dimension}"
+            )
+            for dimension in dimensions
+        ]
 
-    # Shared DataFrame legend (linestyles) -- second row
+        fig.legend(
+            handles=dimension_handles,
+            title="Dimension",
+            loc="upper center",
+            ncol=min(len(dimensions), 5),
+            bbox_to_anchor=(0.5, 1.08),
+            fontsize=10,
+            frameon=True
+        )
+
+    # Shared DataFrame legend (linestyles)
     df_handles = [
         plt.Line2D(
             [0], [0],
@@ -492,24 +518,12 @@ def plot_iterations(
         for df_name, _ in selected_dfs
     ]
 
-    # First legend row: dimensions
-    fig.legend(
-        handles=dimension_handles,
-        title="Dimension",
-        loc="upper center",
-        ncol=min(len(dimensions), 5),
-        bbox_to_anchor=(0.5, 1.08),
-        fontsize=10,
-        frameon=True
-    )
-
-    # Second legend row: DataFrames
     fig.legend(
         handles=df_handles,
         title="DataFrame",
         loc="upper center",
         ncol=min(len(selected_dfs), 4),
-        bbox_to_anchor=(0.5, 1.01),
+        bbox_to_anchor=(0.5, 1.01 if avg else 1.01),
         fontsize=10,
         frameon=True
     )
